@@ -32,17 +32,16 @@
             text-align: center;
         }
 
-        /* TV SELECTOR STYLING */
+        /* TV SELECTOR STYLING - RED BORDER */
         .tv-select {
             background: #111;
-            color: #ef4444; /* Red text */
+            color: #ef4444; 
             border: 1px solid #dc2626;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 0.85rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
             font-weight: bold;
             outline: none;
-            cursor: inherit;
         }
     </style>
 </head>
@@ -71,12 +70,12 @@
 
     <div id="player-overlay">
         <div class="flex flex-col h-full">
-            <div class="p-4 bg-zinc-900 flex flex-wrap justify-between items-center border-b border-zinc-800 gap-4">
+            <div class="p-4 bg-zinc-900 flex justify-between items-center border-b border-zinc-800">
                 
-                <div class="flex items-center gap-6">
-                    <h3 id="playing-title" class="text-2xl font-black text-red-600 uppercase italic truncate max-w-[200px]">Now Playing</h3>
+                <div class="flex items-center gap-4 flex-wrap">
+                    <h3 id="playing-title" class="text-xl font-black text-red-600 uppercase italic truncate max-w-[150px]">Now Playing</h3>
                     
-                    <div id="tv-controls" style="display: none;" class="flex gap-3">
+                    <div id="tv-controls" class="hidden flex gap-2">
                         <select id="season-select" onchange="changeSeason()" class="tv-select"></select>
                         <select id="episode-select" onchange="changeEpisode()" class="tv-select"></select>
                     </div>
@@ -84,10 +83,10 @@
                 
                 <div class="flex items-center gap-4">
                     <div class="flex gap-2">
-                        <button id="srv1" onclick="switchServer(1)" class="bg-zinc-800 px-4 py-2 rounded text-xs font-bold active-btn">Server 1</button>
-                        <button id="srv2" onclick="switchServer(2)" class="bg-zinc-800 px-4 py-2 rounded text-xs font-bold">Server 2</button>
+                        <button id="srv1" onclick="switchServer(1)" class="bg-zinc-800 px-3 py-1 rounded text-xs font-bold active-btn">Server 1</button>
+                        <button id="srv2" onclick="switchServer(2)" class="bg-zinc-800 px-3 py-1 rounded text-xs font-bold">Server 2</button>
                     </div>
-                    <button onclick="closePlayer()" class="bg-red-600 px-6 py-2 rounded-lg font-black shadow-lg hover:bg-red-700 transition">CLOSE ×</button>
+                    <button onclick="closePlayer()" class="bg-red-600 px-4 py-1.5 rounded-lg font-black shadow-lg">CLOSE ×</button>
                 </div>
             </div>
             
@@ -160,10 +159,10 @@
             
             const controls = document.getElementById('tv-controls');
             if (type === 'tv') {
-                controls.style.display = 'flex';
+                controls.classList.remove('hidden'); // unhide instantly
                 await setupTV(id);
             } else {
-                controls.style.display = 'none';
+                controls.classList.add('hidden');
             }
 
             switchServer(1);
@@ -178,7 +177,7 @@
             const sSelect = document.getElementById('season-select');
             sSelect.innerHTML = data.seasons
                 .filter(s => s.season_number > 0)
-                .map(s => `<option value="${s.season_number}">Season ${s.season_number}</option>`).join('');
+                .map(s => `<option value="${s.season_number}">S${s.season_number}</option>`).join('');
             
             await updateEpisodes();
         }
@@ -189,7 +188,7 @@
             const data = await res.json();
             
             const eSelect = document.getElementById('episode-select');
-            eSelect.innerHTML = data.episodes.map(e => `<option value="${e.episode_number}">Ep ${e.episode_number}</option>`).join('');
+            eSelect.innerHTML = data.episodes.map(e => `<option value="${e.episode_number}">E${e.episode_number}</option>`).join('');
         }
 
         function changeSeason() {
