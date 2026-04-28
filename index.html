@@ -41,12 +41,24 @@
             font-weight: 900;
             outline: none;
         }
+
+        .surprise-btn {
+            background: linear-gradient(45deg, #dc2626, #7f1d1d);
+            box-shadow: 0 0 15px rgba(220, 38, 38, 0.4);
+        }
+        .surprise-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(220, 38, 38, 0.7);
+        }
     </style>
 </head>
 <body>
 
     <nav class="p-6 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-zinc-800 bg-black/50 sticky top-0 z-50 backdrop-blur-md">
-        <h1 class="text-4xl font-black italic tracking-tighter text-red-600 cursor-pointer" onclick="location.reload()">RIZZKING <span class="text-white">MOVIES</span></h1>
+        <div class="flex items-center gap-4">
+            <h1 class="text-4xl font-black italic tracking-tighter text-red-600 cursor-pointer" onclick="location.reload()">RIZZKING <span class="text-white">MOVIES</span></h1>
+            <button onclick="pickRandom()" class="surprise-btn text-[10px] font-black uppercase px-3 py-1 rounded-full border border-red-500/50 transition-all">Surprise Me</button>
+        </div>
         
         <div class="flex gap-4">
             <button id="movie-tab" onclick="setTab('movie')" class="font-bold text-red-600 transition uppercase text-sm px-4 py-2 rounded-lg">Movies</button>
@@ -61,23 +73,19 @@
 
     <main class="p-8 max-w-7xl mx-auto">
         <h2 id="grid-title" class="text-xl font-bold mb-6 text-zinc-500 uppercase tracking-widest italic border-l-4 border-red-600 pl-4">Trending Movies</h2>
-        <div id="movie-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-            </div>
+        <div id="movie-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6"></div>
     </main>
 
     <div id="player-overlay">
         <div class="flex flex-col h-full">
             <div class="p-4 bg-zinc-900 flex justify-between items-center border-b border-zinc-800 flex-wrap gap-4">
-                
                 <div class="flex items-center gap-6">
                     <h3 id="playing-title" class="text-xl font-black text-red-600 uppercase italic truncate max-w-[200px]">Loading...</h3>
-                    
                     <div id="tv-ui" style="display: none;" class="flex gap-2">
                         <select id="s-select" onchange="updateS()" class="tv-select"></select>
                         <select id="e-select" onchange="updateE()" class="tv-select"></select>
                     </div>
                 </div>
-                
                 <div class="flex items-center gap-4">
                     <div class="flex gap-2">
                         <button id="s1" onclick="serv(1)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black active-btn transition">SERVER 1</button>
@@ -86,7 +94,6 @@
                     <button onclick="closeP()" class="bg-red-600 px-6 py-1.5 rounded-lg font-black text-sm shadow-lg hover:bg-red-700 transition">CLOSE ×</button>
                 </div>
             </div>
-            
             <div class="flex-grow bg-black">
                 <iframe id="main-frame" src="" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
             </div>
@@ -94,27 +101,18 @@
     </div>
 
     <footer class="rizz-footer">
-        <p class="font-black italic text-xl uppercase tracking-widest">
-            Ur welcome - <span class="anton-name">Anton</span>
-        </p>
-        <p style="text-align: center; color: #52525b; font-size: 10px; text-transform: uppercase; margin-top: 20px; opacity: 0.5; font-family: sans-serif; tracking-tighter;">
-            HOT HUZZ HML
-        </p>
+        <p class="font-black italic text-xl uppercase tracking-widest">Ur welcome - <span class="anton-name">Anton</span></p>
+        <p style="text-align: center; color: #52525b; font-size: 10px; text-transform: uppercase; margin-top: 20px; opacity: 0.5; font-family: sans-serif; tracking-tighter;">HOT HUZZ HML</p>
     </footer>
 
     <script>
         const KEY = 'c151dd5e3f53032433742137e48cd90f'; 
         const grid = document.getElementById('movie-grid');
         const qInput = document.getElementById('search-input');
-        
-        let mode = 'movie'; 
-        let curID = '';
-        let curS = 1;
-        let curE = 1;
+        let mode = 'movie', curID = '', curS = 1, curE = 1;
 
         function setTab(t) {
-            mode = t;
-            qInput.value = "";
+            mode = t; qInput.value = "";
             document.getElementById('movie-tab').style.color = (t === 'movie') ? '#dc2626' : 'white';
             document.getElementById('tv-tab').style.color = (t === 'tv') ? '#dc2626' : 'white';
             fetchData();
@@ -123,13 +121,9 @@
         async function fetchData(q = "") {
             const path = q ? `search/${mode}` : `trending/${mode}/day`;
             const param = q ? `&query=${encodeURIComponent(q)}` : '';
-            const url = `https://api.themoviedb.org/3/${path}?api_key=${KEY}${param}`;
-            
-            const res = await fetch(url);
+            const res = await fetch(`https://api.themoviedb.org/3/${path}?api_key=${KEY}${param}`);
             const data = await res.json();
-            
             document.getElementById('grid-title').innerText = q ? `RESULTS: ${q.toUpperCase()}` : `TRENDING ${mode.toUpperCase()}S`;
-            
             grid.innerHTML = data.results.map(m => `
                 <div class="movie-card rounded-2xl overflow-hidden shadow-xl" onclick="openP('${m.id}', '${(m.title || m.name).replace(/'/g, "")}')">
                     <img src="${m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : 'https://via.placeholder.com/500x750?text=No+Poster'}" class="w-full">
@@ -144,20 +138,19 @@
             `).join('');
         }
 
-        async function openP(id, title) {
-            curID = id;
-            curS = 1;
-            curE = 1;
-            document.getElementById('playing-title').innerText = title;
-            
-            const tvUI = document.getElementById('tv-ui');
-            if (mode === 'tv') {
-                tvUI.style.display = 'flex';
-                await loadTVData(id);
-            } else {
-                tvUI.style.display = 'none';
-            }
+        async function pickRandom() {
+            const randPage = Math.floor(Math.random() * 20) + 1; // Pick from top 20 pages (400 items)
+            const res = await fetch(`https://api.themoviedb.org/3/discover/${mode}?api_key=${KEY}&page=${randPage}&sort_by=popularity.desc&vote_count.gte=100`);
+            const data = await res.json();
+            const randomItem = data.results[Math.floor(Math.random() * data.results.length)];
+            openP(randomItem.id, randomItem.title || randomItem.name);
+        }
 
+        async function openP(id, title) {
+            curID = id; curS = 1; curE = 1;
+            document.getElementById('playing-title').innerText = title;
+            const tvUI = document.getElementById('tv-ui');
+            if (mode === 'tv') { tvUI.style.display = 'flex'; await loadTVData(id); } else { tvUI.style.display = 'none'; }
             serv(1);
             document.getElementById('player-overlay').style.display = 'flex';
             document.body.style.overflow = 'hidden';
@@ -166,12 +159,8 @@
         async function loadTVData(id) {
             const res = await fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${KEY}`);
             const data = await res.json();
-            
-            const sBox = document.getElementById('s-select');
-            sBox.innerHTML = data.seasons
-                .filter(s => s.season_number > 0)
+            document.getElementById('s-select').innerHTML = data.seasons.filter(s => s.season_number > 0)
                 .map(s => `<option value="${s.season_number}">SEASON ${s.season_number}</option>`).join('');
-            
             await loadEpData();
         }
 
@@ -179,48 +168,22 @@
             const sNum = document.getElementById('s-select').value;
             const res = await fetch(`https://api.themoviedb.org/3/tv/${curID}/season/${sNum}?api_key=${KEY}`);
             const data = await res.json();
-            
-            const eBox = document.getElementById('e-select');
-            eBox.innerHTML = data.episodes.map(e => `<option value="${e.episode_number}">EP ${e.episode_number}</option>`).join('');
+            document.getElementById('e-select').innerHTML = data.episodes.map(e => `<option value="${e.episode_number}">EP ${e.episode_number}</option>`).join('');
         }
 
-        function updateS() {
-            curS = document.getElementById('s-select').value;
-            curE = 1;
-            loadEpData().then(() => serv(1));
-        }
-
-        function updateE() {
-            curE = document.getElementById('e-select').value;
-            serv(1);
-        }
+        function updateS() { curS = document.getElementById('s-select').value; curE = 1; loadEpData().then(() => serv(1)); }
+        function updateE() { curE = document.getElementById('e-select').value; serv(1); }
 
         function serv(n) {
             const frame = document.getElementById('main-frame');
             document.getElementById('s1').classList.toggle('active-btn', n === 1);
             document.getElementById('s2').classList.toggle('active-btn', n === 2);
-            
-            if (n === 1) {
-                frame.src = mode === 'movie' 
-                    ? `https://vidking.net/embed/movie/${curID}` 
-                    : `https://vidking.net/embed/tv/${curID}/${curS}/${curE}`;
-            } else {
-                frame.src = mode === 'movie' 
-                    ? `https://vidsrc.me/embed/movie?tmdb=${curID}` 
-                    : `https://vidsrc.me/embed/tv?tmdb=${curID}&sea=${curS}&epi=${curE}`;
-            }
+            frame.src = n === 1 ? (mode === 'movie' ? `https://vidking.net/embed/movie/${curID}` : `https://vidking.net/embed/tv/${curID}/${curS}/${curE}`)
+                                : (mode === 'movie' ? `https://vidsrc.me/embed/movie?tmdb=${curID}` : `https://vidsrc.me/embed/tv?tmdb=${curID}&sea=${curS}&epi=${curE}`);
         }
 
-        function closeP() {
-            document.getElementById('player-overlay').style.display = 'none';
-            document.getElementById('main-frame').src = '';
-            document.body.style.overflow = 'auto';
-        }
-
-        qInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') fetchData(e.target.value);
-        });
-
+        function closeP() { document.getElementById('player-overlay').style.display = 'none'; document.getElementById('main-frame').src = ''; document.body.style.overflow = 'auto'; }
+        qInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') fetchData(e.target.value); });
         fetchData();
     </script>
 </body>
