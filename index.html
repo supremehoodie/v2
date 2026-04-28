@@ -11,11 +11,10 @@
             background-color: #050505; 
             color: white; 
             font-family: 'Inter', sans-serif;
-            /* High-quality Red SVG Cursor */
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="red" stroke="white" stroke-width="1.5"><path d="M7 2l12 11.2-5.8.8 3.3 7.2-2.2 1-3.3-7.2-4 3.8z"/></svg>'), auto;
         }
 
-        .movie-card { transition: all 0.3s ease; cursor: inherit; border: 1px solid #1a1a1a; }
+        .movie-card { transition: all 0.3s ease; cursor: inherit; border: 1px solid #1a1a1a; position: relative; }
         .movie-card:hover { transform: translateY(-10px); filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.6)); border-color: #ff0000; }
         
         #player-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; flex-direction: column; }
@@ -23,17 +22,15 @@
         
         /* ANTON HIGHLIGHT HOVER */
         .anton-name { transition: all 0.3s ease; color: #ff5555; font-weight: 900; text-decoration: underline; text-underline-offset: 4px; cursor: inherit; }
-        .anton-name:hover { color: #ff0000; text-shadow: 0 0 25px #ff0000, 0 0 50px #ff0000; font-size: 1.3rem; }
+        .anton-name:hover { color: #ff0000; text-shadow: 0 0 25px #ff0000, 0 0 50px #ff0000; font-size: 1.4rem; }
 
-        /* CLEAN HIGHLIGHTED FOOTER */
-        .rizz-footer {
-            border-top: 4px solid #ff0000;
-            background: linear-gradient(to top, #1a0000, #000);
-            padding: 60px 20px;
-            text-align: center;
-        }
+        /* SAVE BUTTON */
+        .save-btn { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px; border-radius: 50%; z-index: 20; transition: 0.3s; border: 1px solid transparent; }
+        .save-btn:hover { background: #ff0000; border-color: white; transform: scale(1.1); }
+        .saved { color: #ff0000 !important; }
 
-        .rizz-badge { position: absolute; top: 10px; right: 10px; background: #ff0000; color: white; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 900; z-index: 10; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .rizz-footer { border-top: 4px solid #ff0000; background: linear-gradient(to top, #1a0000, #000); padding: 60px 20px; text-align: center; }
+        .rizz-badge { position: absolute; top: 10px; right: 10px; background: #ff0000; color: white; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 900; z-index: 10; }
     </style>
 </head>
 <body>
@@ -42,13 +39,14 @@
         <h1 class="text-4xl font-black italic tracking-tighter text-red-600 cursor-pointer hover:brightness-125" onclick="window.location.href='./'">RIZZKING <span class="text-white">MOVIES</span></h1>
         
         <div class="flex gap-6">
-            <button onclick="loadMovies()" class="font-bold hover:text-red-600 transition uppercase tracking-widest">Movies</button>
-            <button onclick="loadTV()" class="font-bold hover:text-red-600 transition uppercase tracking-widest">TV Shows</button>
+            <button onclick="loadMovies()" class="font-bold hover:text-red-600 transition uppercase tracking-widest text-sm">Movies</button>
+            <button onclick="loadTV()" class="font-bold hover:text-red-600 transition uppercase tracking-widest text-sm">TV Shows</button>
+            <button onclick="scrollToWL()" class="font-bold text-red-500 hover:text-white transition uppercase tracking-widest text-sm underline">Watch Later</button>
         </div>
 
         <div class="relative w-full md:w-96">
             <input type="text" id="search-input" placeholder="Search for absolute cinema..." 
-                   class="w-full bg-zinc-900 border border-zinc-700 px-6 py-3 rounded-2xl focus:outline-none focus:border-red-600 transition shadow-inner">
+                   class="w-full bg-zinc-900 border border-zinc-800 px-6 py-3 rounded-2xl focus:outline-none focus:border-red-600 transition shadow-inner">
         </div>
     </nav>
 
@@ -56,17 +54,20 @@
         <section id="fav-section" class="mb-16">
             <h2 class="text-3xl font-black italic mb-8 text-red-600 uppercase tracking-tighter">RizzKings Favourites</h2>
             <div id="fav-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="movie-card bg-zinc-900 rounded-2xl overflow-hidden relative" onclick="playMedia('27576', 'movie', 'The Expendables')">
+                <div class="movie-card bg-zinc-900 rounded-2xl overflow-hidden" onclick="playMedia('27576', 'movie', 'The Expendables')">
+                    <button class="save-btn" onclick="toggleWL(event, '27576', 'movie', 'The Expendables', '/p7vT6idvL89O6q6xM0yXw3q6xM0.jpg')">❤</button>
                     <div class="rizz-badge">RIZZ CHOICE</div>
                     <img src="https://image.tmdb.org/t/p/w500/p7vT6idvL89O6q6xM0yXw3q6xM0.jpg" class="w-full" referrerpolicy="no-referrer">
                     <p class="p-4 font-bold text-lg">The Expendables</p>
                 </div>
-                <div class="movie-card bg-zinc-900 rounded-2xl overflow-hidden relative" onclick="playMedia('9351', 'movie', 'Natural Born Killers')">
+                <div class="movie-card bg-zinc-900 rounded-2xl overflow-hidden" onclick="playMedia('9351', 'movie', 'Natural Born Killers')">
+                    <button class="save-btn" onclick="toggleWL(event, '9351', 'movie', 'Natural Born Killers', '/m8BvCInl4Y4rEshYfE9U7oU9LpA.jpg')">❤</button>
                     <div class="rizz-badge">RIZZ CHOICE</div>
                     <img src="https://image.tmdb.org/t/p/w500/m8BvCInl4Y4rEshYfE9U7oU9LpA.jpg" class="w-full" referrerpolicy="no-referrer">
                     <p class="p-4 font-bold text-lg">Natural Born Killers</p>
                 </div>
-                <div class="movie-card bg-zinc-900 rounded-2xl overflow-hidden relative" onclick="playMedia('807', 'movie', 'Se7en')">
+                <div class="movie-card bg-zinc-900 rounded-2xl overflow-hidden" onclick="playMedia('807', 'movie', 'Se7en')">
+                    <button class="save-btn" onclick="toggleWL(event, '807', 'movie', 'Se7en', '/69Snp98Y6S6559779v8u5XrsMG8.jpg')">❤</button>
                     <div class="rizz-badge">RIZZ CHOICE</div>
                     <img src="https://image.tmdb.org/t/p/w500/69Snp98Y6S6559779v8u5XrsMG8.jpg" class="w-full" referrerpolicy="no-referrer">
                     <p class="p-4 font-bold text-lg">Se7en</p>
@@ -74,10 +75,13 @@
             </div>
         </section>
 
+        <section id="watch-later-section" class="mb-16 hidden">
+            <h2 class="text-3xl font-black italic mb-8 text-white uppercase tracking-tighter border-l-4 border-red-600 pl-4">Watch Later</h2>
+            <div id="wl-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6"></div>
+        </section>
+
         <h2 id="grid-title" class="text-xl font-bold mb-8 text-zinc-500 uppercase tracking-[0.2em]">Trending Now</h2>
-        <div id="movie-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-            <div class="col-span-full text-center py-20 text-zinc-600 italic">Connecting to the database...</div>
-        </div>
+        <div id="movie-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6"></div>
     </main>
 
     <div id="player-overlay">
@@ -90,7 +94,122 @@
                         <button id="srv2" onclick="switchServer(2)" class="bg-zinc-800 px-4 py-2 rounded-lg text-xs font-black transition">SERVER 2</button>
                     </div>
                 </div>
-                <button onclick="closePlayer()" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-xl font-black shadow-lg">CLOSE ×</button>
+                <button onclick="closePlayer()" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-xl font-black">CLOSE ×</button>
             </div>
-            <div class="flex-grow bg-black">
-                <iframe id="player-frame" src=""
+            <div class="flex-grow bg-black"><iframe id="player-frame" src="" width="100%" height="100%" frameborder="0" allowfullscreen></iframe></div>
+        </div>
+    </div>
+
+    <footer class="rizz-footer">
+        <p class="font-black italic text-xl uppercase tracking-[0.3em] mb-2 text-zinc-500">The Ultimate Hub</p>
+        <p class="font-black italic text-2xl uppercase tracking-tighter">Ur welcome - <span class="anton-name">Anton AKA Rizzking</span></p>
+    </footer>
+
+    <script>
+        const API_KEY = 'c151dd5e3f53032433742137e48cd90f'; 
+        const grid = document.getElementById('movie-grid');
+        const wlGrid = document.getElementById('wl-grid');
+        const searchInput = document.getElementById('search-input');
+        let currentId = '', currentType = 'movie';
+
+        // WATCH LATER SYSTEM
+        let watchLater = JSON.parse(localStorage.getItem('rizzWL')) || [];
+
+        function toggleWL(e, id, type, title, poster) {
+            e.stopPropagation();
+            const index = watchLater.findIndex(m => m.id === id);
+            if (index > -1) {
+                watchLater.splice(index, 1);
+            } else {
+                watchLater.push({id, type, title, poster});
+            }
+            localStorage.setItem('rizzWL', JSON.stringify(watchLater));
+            renderWL();
+            loadMovies(searchInput.value); // Refresh icons on grid
+        }
+
+        function renderWL() {
+            const section = document.getElementById('watch-later-section');
+            if (watchLater.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+            section.classList.remove('hidden');
+            wlGrid.innerHTML = watchLater.map(m => `
+                <div class="movie-card bg-zinc-900 rounded-xl overflow-hidden" onclick="playMedia('${m.id}', '${m.type}', '${m.title}')">
+                    <button class="save-btn saved" onclick="toggleWL(event, '${m.id}', '${m.type}', '${m.title}', '${m.poster}')">❤</button>
+                    <img src="https://image.tmdb.org/t/p/w500${m.poster}" class="w-full" referrerpolicy="no-referrer">
+                    <p class="p-2 text-[10px] font-bold truncate">${m.title}</p>
+                </div>
+            `).join('');
+        }
+
+        async function loadMovies(query = '') {
+            currentType = 'movie';
+            const url = query 
+                ? `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`
+                : `https://api.themoviedb.org/3/trending/movie/day?api_key=${API_KEY}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            document.getElementById('grid-title').innerText = query ? `Search Results: ${query}` : "Trending Movies";
+            renderMedia(data.results, 'movie');
+        }
+
+        async function loadTV() {
+            currentType = 'tv';
+            const url = `https://api.themoviedb.org/3/trending/tv/day?api_key=${API_KEY}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            document.getElementById('grid-title').innerText = "Trending TV Shows";
+            renderMedia(data.results, 'tv');
+        }
+
+        function renderMedia(items, type) {
+            grid.innerHTML = items.map(m => {
+                const isSaved = watchLater.some(saved => saved.id == m.id);
+                return `
+                <div class="movie-card bg-zinc-900 rounded-2xl overflow-hidden" onclick="playMedia('${m.id}', '${type}', '${(m.title || m.name).replace(/'/g, "")}')">
+                    <button class="save-btn ${isSaved ? 'saved' : ''}" onclick="toggleWL(event, '${m.id}', '${type}', '${(m.title || m.name).replace(/'/g, "")}', '${m.poster_path}')">❤</button>
+                    <img src="${m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : 'https://via.placeholder.com/500x750?text=No+Poster'}" class="w-full" referrerpolicy="no-referrer">
+                    <div class="p-4 bg-zinc-950/80">
+                        <h3 class="font-bold text-xs line-clamp-1 uppercase tracking-tighter">${m.title || m.name}</h3>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded-md font-black">★ ${m.vote_average.toFixed(1)}</span>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function playMedia(id, type, title) {
+            currentId = id; currentType = type;
+            document.getElementById('playing-title').innerText = title;
+            switchServer(1);
+            document.getElementById('player-overlay').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function switchServer(num) {
+            const frame = document.getElementById('player-frame');
+            document.getElementById('srv1').classList.toggle('active-btn', num === 1);
+            document.getElementById('srv2').classList.toggle('active-btn', num === 2);
+            frame.src = num === 1 
+                ? (currentType === 'movie' ? `https://vidking.net/embed/movie/${currentId}` : `https://vidking.net/embed/tv/${currentId}/1/1`)
+                : (currentType === 'movie' ? `https://vidsrc.me/embed/movie?tmdb=${currentId}` : `https://vidsrc.me/embed/tv?tmdb=${currentId}&sea=1&epi=1`);
+        }
+
+        function closePlayer() {
+            document.getElementById('player-overlay').style.display = 'none';
+            document.getElementById('player-frame').src = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        function scrollToWL() { document.getElementById('watch-later-section').scrollIntoView({behavior: 'smooth'}); }
+
+        searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') loadMovies(e.target.value); });
+
+        renderWL();
+        loadMovies();
+    </script>
+</body>
+</html>
