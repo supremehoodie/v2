@@ -32,7 +32,7 @@
             text-align: center;
         }
 
-        /* TV SELECTOR STYLING - RED BORDER */
+        /* TV SELECTOR STYLING */
         .tv-select {
             background: #111;
             color: #ef4444; 
@@ -51,8 +51,8 @@
         <h1 class="text-4xl font-black italic tracking-tighter text-red-600 cursor-pointer" onclick="window.location.href='./'">RIZZKING <span class="text-white">MOVIES</span></h1>
         
         <div class="flex gap-4">
-            <button onclick="loadMovies()" class="font-bold hover:text-red-600 transition uppercase text-sm">Movies</button>
-            <button onclick="loadTV()" class="font-bold hover:text-red-600 transition uppercase text-sm">TV Shows</button>
+            <button id="movie-nav" onclick="switchCategory('movie')" class="font-bold text-red-600 transition uppercase text-sm">Movies</button>
+            <button id="tv-nav" onclick="switchCategory('tv')" class="font-bold hover:text-red-600 transition uppercase text-sm">TV Shows</button>
         </div>
 
         <div class="relative w-full md:w-96">
@@ -86,7 +86,7 @@
                         <button id="srv1" onclick="switchServer(1)" class="bg-zinc-800 px-3 py-1 rounded text-xs font-bold active-btn">Server 1</button>
                         <button id="srv2" onclick="switchServer(2)" class="bg-zinc-800 px-3 py-1 rounded text-xs font-bold">Server 2</button>
                     </div>
-                    <button onclick="closePlayer()" class="bg-red-600 px-4 py-1.5 rounded-lg font-black shadow-lg">CLOSE ×</button>
+                    <button onclick="closePlayer()" class="bg-red-600 px-4 py-1.5 rounded-lg font-black shadow-lg hover:bg-red-700 transition">CLOSE ×</button>
                 </div>
             </div>
             
@@ -111,33 +111,39 @@
         const searchInput = document.getElementById('search-input');
         
         let currentId = '';
-        let currentType = 'movie';
+        let currentType = 'movie'; // Default category
         let currentS = 1;
         let currentE = 1;
 
-        async function loadMovies(query = '') {
-            currentType = 'movie';
-            const url = query 
-                ? `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`
-                : `https://api.themoviedb.org/3/trending/movie/day?api_key=${API_KEY}`;
-            const res = await fetch(url);
-            const data = await res.json();
-            document.getElementById('grid-title').innerText = query ? `Search: ${query}` : "Trending Movies";
-            renderMedia(data.results, 'movie');
+        // Switches between Movie and TV mode
+        function switchCategory(type) {
+            currentType = type;
+            searchInput.value = ""; // Clear search when switching tabs
+            
+            // Update UI Colors
+            document.getElementById('movie-nav').className = type === 'movie' ? 'font-bold text-red-600 transition uppercase text-sm' : 'font-bold hover:text-red-600 transition uppercase text-sm';
+            document.getElementById('tv-nav').className = type === 'tv' ? 'font-bold text-red-600 transition uppercase text-sm' : 'font-bold hover:text-red-600 transition uppercase text-sm';
+            
+            loadContent();
         }
 
-        async function loadTV() {
-            currentType = 'tv';
-            const url = `https://api.themoviedb.org/3/trending/tv/day?api_key=${API_KEY}`;
+        async function loadContent(query = '') {
+            const endpoint = query ? `search/${currentType}` : `trending/${currentType}/day`;
+            const queryParam = query ? `&query=${encodeURIComponent(query)}` : '';
+            const url = `https://api.themoviedb.org/3/${endpoint}?api_key=${API_KEY}${queryParam}`;
+
             const res = await fetch(url);
             const data = await res.json();
-            document.getElementById('grid-title').innerText = "Trending Shows";
-            renderMedia(data.results, 'tv');
+            
+            const categoryName = currentType === 'movie' ? 'Movies' : 'Shows';
+            document.getElementById('grid-title').innerText = query ? `Search ${categoryName}: ${query}` : `Trending ${categoryName}`;
+            
+            renderMedia(data.results);
         }
 
-        function renderMedia(items, type) {
+        function renderMedia(items) {
             grid.innerHTML = items.map(m => `
-                <div class="movie-card bg-zinc-900 rounded-2xl overflow-hidden shadow-xl" onclick="playMedia('${m.id}', '${type}', '${(m.title || m.name).replace(/'/g, "")}')">
+                <div class="movie-card bg-zinc-900 rounded-2xl overflow-hidden shadow-xl" onclick="playMedia('${m.id}', '${currentType}', '${(m.title || m.name).replace(/'/g, "")}')">
                     <img src="${m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : 'https://via.placeholder.com/500x750?text=No+Poster'}" class="w-full">
                     <div class="p-4">
                         <h3 class="font-bold text-sm line-clamp-1">${m.title || m.name}</h3>
@@ -159,7 +165,7 @@
             
             const controls = document.getElementById('tv-controls');
             if (type === 'tv') {
-                controls.classList.remove('hidden'); // unhide instantly
+                controls.classList.remove('hidden');
                 await setupTV(id);
             } else {
                 controls.classList.add('hidden');
@@ -225,10 +231,11 @@
         }
 
         searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') loadMovies(e.target.value);
+            if (e.key === 'Enter') loadContent(e.target.value);
         });
 
-        loadMovies();
+        // Initial load
+        loadContent();
     </script>
 </body>
 </html>
