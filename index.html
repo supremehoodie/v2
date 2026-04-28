@@ -6,90 +6,90 @@
     <title>RizzKing Movies | Absolute Cinema</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* GLOBAL RED CURSOR */
+        /* SUPREME RED CURSOR */
         html, body { 
             background-color: #050505; 
             color: white; 
             font-family: 'Inter', sans-serif;
-            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="red" stroke="white" stroke-width="1"><path d="M7 2l12 11.2-5.8.8 3.3 7.2-2.2 1-3.3-7.2-4 3.8z"/></svg>'), auto;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="red" stroke="black" stroke-width="1.5"><path d="M7 2l12 11.2-5.8.8 3.3 7.2-2.2 1-3.3-7.2-4 3.8z"/></svg>'), auto;
         }
 
         .movie-card { transition: all 0.3s ease; cursor: inherit; border: 1px solid #1a1a1a; }
-        .movie-card:hover { transform: translateY(-10px); filter: drop-shadow(0 0 15px rgba(220, 38, 38, 0.5)); border-color: #ff0000; }
+        .movie-card:hover { transform: translateY(-10px); filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.6)); border-color: #ff0000; }
         
         #player-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; flex-direction: column; }
-        .active-btn { background-color: #dc2626 !important; }
+        .active-btn { background-color: #dc2626 !important; box-shadow: 0 0 10px #ff0000; }
         
-        /* ANTON HOVER EFFECT */
-        .anton-name { transition: all 0.4s ease; color: #ff0000; cursor: inherit; }
-        .anton-name:hover { color: #ff5555; text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000; }
+        /* ANTON HIGHLIGHT HOVER */
+        .anton-name { transition: all 0.3s ease; color: #ff0000; text-decoration: underline; text-underline-offset: 4px; cursor: inherit; }
+        .anton-name:hover { color: #ff3333; text-shadow: 0 0 25px #ff0000, 0 0 50px #ff0000; font-size: 1.3rem; }
 
-        /* CLEAN FOOTER HIGHLIGHT */
+        /* CLEAN FOOTER */
         .rizz-footer {
-            border-top: 2px solid #1a1a1a;
-            background: linear-gradient(to top, #0a0000, #000);
-            padding: 50px 20px;
+            border-top: 3px solid #ff0000;
+            background: linear-gradient(to top, #1a0000, #000);
+            padding: 60px 20px;
             text-align: center;
         }
 
-        .rizz-badge { position: absolute; top: 10px; right: 10px; background: #ff0000; color: white; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 900; z-index: 10; }
+        .rizz-badge { position: absolute; top: 10px; right: 10px; background: #ff0000; color: white; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 900; z-index: 10; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
-    <nav class="p-6 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-zinc-800 bg-black/50 sticky top-0 z-50 backdrop-blur-md">
-        <h1 class="text-4xl font-black italic tracking-tighter text-red-600 cursor-pointer" onclick="window.location.href='./'">RIZZKING <span class="text-white">MOVIES</span></h1>
+    <nav class="p-6 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-zinc-800 bg-black/80 sticky top-0 z-50 backdrop-blur-lg">
+        <h1 class="text-4xl font-black italic tracking-tighter text-red-600 cursor-pointer hover:brightness-125" onclick="window.location.href='./'">RIZZKING <span class="text-white">MOVIES</span></h1>
         
-        <div class="flex gap-4">
-            <button onclick="loadMovies()" class="font-bold hover:text-red-600 transition">MOVIES</button>
-            <button onclick="loadTV()" class="font-bold hover:text-red-600 transition">TV SHOWS</button>
+        <div class="flex gap-6">
+            <button onclick="loadMovies()" class="font-bold hover:text-red-600 transition uppercase tracking-widest">Movies</button>
+            <button onclick="loadTV()" class="font-bold hover:text-red-600 transition uppercase tracking-widest">TV Shows</button>
         </div>
 
         <div class="relative w-full md:w-96">
-            <input type="text" id="search-input" placeholder="Search for rizz..." 
-                   class="w-full bg-zinc-900 border border-zinc-700 px-5 py-3 rounded-xl focus:outline-none focus:border-red-600 transition">
+            <input type="text" id="search-input" placeholder="Search for absolute cinema..." 
+                   class="w-full bg-zinc-900 border border-zinc-800 px-6 py-3 rounded-2xl focus:outline-none focus:border-red-600 transition shadow-inner">
         </div>
     </nav>
 
     <main class="p-8 max-w-7xl mx-auto">
-        <section id="fav-section" class="mb-12">
-            <h2 class="text-2xl font-black italic mb-6 text-red-600 uppercase">RizzKings Favourites</h2>
-            <div id="fav-grid" class="grid grid-cols-2 md:grid-cols-3 gap-6">
+        <section id="fav-section" class="mb-16">
+            <h2 class="text-3xl font-black italic mb-8 text-red-600 uppercase tracking-tighter">RizzKings Favourites</h2>
+            <div id="fav-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="movie-card bg-zinc-900 rounded-2xl overflow-hidden relative" onclick="playMedia('27576', 'movie', 'The Expendables')">
                     <div class="rizz-badge">RIZZ CHOICE</div>
-                    <img src="https://image.tmdb.org/t/p/w500/p7vT6idvL89O6q6xM0yXw3q6xM0.jpg" class="w-full">
-                    <p class="p-4 font-bold text-sm truncate">The Expendables</p>
+                    <img src="https://image.tmdb.org/t/p/w780/p7vT6idvL89O6q6xM0yXw3q6xM0.jpg" class="w-full">
+                    <p class="p-4 font-bold text-lg">The Expendables</p>
                 </div>
                 <div class="movie-card bg-zinc-900 rounded-2xl overflow-hidden relative" onclick="playMedia('9351', 'movie', 'Natural Born Killers')">
                     <div class="rizz-badge">RIZZ CHOICE</div>
-                    <img src="https://image.tmdb.org/t/p/w500/m8BvCInl4Y4rEshYfE9U7oU9LpA.jpg" class="w-full">
-                    <p class="p-4 font-bold text-sm truncate">Natural Born Killers</p>
+                    <img src="https://image.tmdb.org/t/p/w780/m8BvCInl4Y4rEshYfE9U7oU9LpA.jpg" class="w-full">
+                    <p class="p-4 font-bold text-lg">Natural Born Killers</p>
                 </div>
                 <div class="movie-card bg-zinc-900 rounded-2xl overflow-hidden relative" onclick="playMedia('807', 'movie', 'Se7en')">
                     <div class="rizz-badge">RIZZ CHOICE</div>
-                    <img src="https://image.tmdb.org/t/p/w500/69Snp98Y6S6559779v8u5XrsMG8.jpg" class="w-full">
-                    <p class="p-4 font-bold text-sm truncate">Se7en</p>
+                    <img src="https://image.tmdb.org/t/p/w780/69Snp98Y6S6559779v8u5XrsMG8.jpg" class="w-full">
+                    <p class="p-4 font-bold text-lg">Se7en</p>
                 </div>
             </div>
         </section>
 
-        <h2 id="grid-title" class="text-xl font-bold mb-6 text-zinc-500 uppercase tracking-widest">Trending Movies</h2>
+        <h2 id="grid-title" class="text-xl font-bold mb-8 text-zinc-500 uppercase tracking-[0.2em]">Trending Now</h2>
         <div id="movie-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-            <div class="col-span-full text-center py-20 text-zinc-500">Loading the rizz...</div>
+            <div class="col-span-full text-center py-20 text-zinc-600 italic">Connecting to the database...</div>
         </div>
     </main>
 
     <div id="player-overlay">
         <div class="flex flex-col h-full">
-            <div class="p-4 bg-zinc-900 flex justify-between items-center border-b border-zinc-800">
-                <div class="flex items-center gap-4">
-                    <h3 id="playing-title" class="text-xl font-bold text-red-600 uppercase">Now Playing</h3>
-                    <div class="flex gap-2">
-                        <button id="srv1" onclick="switchServer(1)" class="bg-zinc-800 px-3 py-1 rounded text-xs font-bold active-btn">Server 1</button>
-                        <button id="srv2" onclick="switchServer(2)" class="bg-zinc-800 px-3 py-1 rounded text-xs font-bold">Server 2</button>
+            <div class="p-4 bg-zinc-950 flex justify-between items-center border-b border-zinc-800">
+                <div class="flex items-center gap-6">
+                    <h3 id="playing-title" class="text-xl font-black text-red-600 uppercase italic">Loading Cinema...</h3>
+                    <div class="flex gap-3">
+                        <button id="srv1" onclick="switchServer(1)" class="bg-zinc-800 px-4 py-2 rounded-lg text-xs font-black active-btn transition">SERVER 1</button>
+                        <button id="srv2" onclick="switchServer(2)" class="bg-zinc-800 px-4 py-2 rounded-lg text-xs font-black transition">SERVER 2</button>
                     </div>
                 </div>
-                <button onclick="closePlayer()" class="bg-red-600 px-4 py-2 rounded-lg font-bold">CLOSE ×</button>
+                <button onclick="closePlayer()" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-xl font-black shadow-lg">CLOSE ×</button>
             </div>
             <div class="flex-grow bg-black">
                 <iframe id="player-frame" src="" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
@@ -98,7 +98,8 @@
     </div>
 
     <footer class="rizz-footer">
-        <p class="font-black italic text-xl uppercase tracking-widest">
+        <p class="font-black italic text-xl uppercase tracking-[0.3em] mb-2 text-zinc-500">The Ultimate Hub</p>
+        <p class="font-black italic text-2xl uppercase tracking-tighter">
             Ur welcome - <span class="anton-name">Anton AKA Rizzking</span>
         </p>
     </footer>
@@ -117,7 +118,7 @@
                 : `https://api.themoviedb.org/3/trending/movie/day?api_key=${API_KEY}`;
             const res = await fetch(url);
             const data = await res.json();
-            document.getElementById('grid-title').innerText = query ? `Search: ${query}` : "Trending Movies";
+            document.getElementById('grid-title').innerText = query ? `Search Results: ${query}` : "Trending Movies";
             renderMedia(data.results, 'movie');
         }
 
@@ -126,19 +127,19 @@
             const url = `https://api.themoviedb.org/3/trending/tv/day?api_key=${API_KEY}`;
             const res = await fetch(url);
             const data = await res.json();
-            document.getElementById('grid-title').innerText = "Trending Shows";
+            document.getElementById('grid-title').innerText = "Trending TV Shows";
             renderMedia(data.results, 'tv');
         }
 
         function renderMedia(items, type) {
             grid.innerHTML = items.map(m => `
-                <div class="movie-card bg-zinc-900 rounded-2xl overflow-hidden shadow-xl" onclick="playMedia('${m.id}', '${type}', '${(m.title || m.name).replace(/'/g, "")}')">
-                    <img src="${m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : 'https://via.placeholder.com/500x750?text=No+Poster'}" class="w-full">
-                    <div class="p-4">
-                        <h3 class="font-bold text-sm line-clamp-1">${m.title || m.name}</h3>
+                <div class="movie-card bg-zinc-900 rounded-2xl overflow-hidden shadow-2xl" onclick="playMedia('${m.id}', '${type}', '${(m.title || m.name).replace(/'/g, "")}')">
+                    <img src="${m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : 'https://via.placeholder.com/500x750?text=No+Poster'}" class="w-full h-full object-cover">
+                    <div class="p-4 bg-zinc-950/80">
+                        <h3 class="font-bold text-xs line-clamp-1 uppercase tracking-tighter">${m.title || m.name}</h3>
                         <div class="flex justify-between items-center mt-2">
-                            <span class="text-xs text-zinc-500">${(m.release_date || m.first_air_date)?.split('-')[0] || 'N/A'}</span>
-                            <span class="text-xs bg-red-600/20 text-red-500 px-2 py-1 rounded">★ ${m.vote_average.toFixed(1)}</span>
+                            <span class="text-[10px] text-zinc-500 font-black">${(m.release_date || m.first_air_date)?.split('-')[0] || 'N/A'}</span>
+                            <span class="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded-md font-black">★ ${m.vote_average.toFixed(1)}</span>
                         </div>
                     </div>
                 </div>
@@ -159,21 +160,4 @@
             document.getElementById('srv1').classList.toggle('active-btn', num === 1);
             document.getElementById('srv2').classList.toggle('active-btn', num === 2);
             frame.src = num === 1 
-                ? (currentType === 'movie' ? `https://vidking.net/embed/movie/${currentId}` : `https://vidking.net/embed/tv/${currentId}/1/1`)
-                : (currentType === 'movie' ? `https://vidsrc.me/embed/movie?tmdb=${currentId}` : `https://vidsrc.me/embed/tv?tmdb=${currentId}&sea=1&epi=1`);
-        }
-
-        function closePlayer() {
-            document.getElementById('player-overlay').style.display = 'none';
-            document.getElementById('player-frame').src = '';
-            document.body.style.overflow = 'auto';
-        }
-
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') loadMovies(e.target.value);
-        });
-
-        loadMovies();
-    </script>
-</body>
-</html>
+                ? (currentType === 'movie' ? `https://vidking.net/embed/movie/${currentId}` : `https://vidking.net/embed/tv/${
