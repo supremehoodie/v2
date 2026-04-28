@@ -14,17 +14,16 @@
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="red" stroke="white" stroke-width="1"><path d="M7 2l12 11.2-5.8.8 3.3 7.2-2.2 1-3.3-7.2-4 3.8z"/></svg>'), auto;
         }
 
-        .movie-card { transition: all 0.3s ease; cursor: inherit; border: 1px solid #1a1a1a; }
+        .movie-card { transition: all 0.3s ease; cursor: inherit; border: 1px solid #1a1a1a; background: #0a0a0a; }
         .movie-card:hover { transform: translateY(-10px); filter: drop-shadow(0 0 15px rgba(220, 38, 38, 0.5)); border-color: #ff0000; }
         
         #player-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; flex-direction: column; }
-        .active-btn { background-color: #dc2626 !important; }
+        .active-btn { background-color: #dc2626 !important; box-shadow: 0 0 10px #ff0000; }
         
         /* ANTON HOVER EFFECT */
         .anton-name { transition: all 0.4s ease; color: #ff0000; cursor: inherit; text-decoration: none; }
         .anton-name:hover { color: #ff5555; text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000; }
 
-        /* CLEAN FOOTER */
         .rizz-footer {
             border-top: 2px solid #1a1a1a;
             background: linear-gradient(to top, #0a0000, #000);
@@ -32,15 +31,14 @@
             text-align: center;
         }
 
-        /* TV SELECTOR STYLING */
         .tv-select {
             background: #111;
-            color: #ef4444; 
+            color: #ff0000; 
             border: 1px solid #dc2626;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 900;
             outline: none;
         }
     </style>
@@ -48,50 +46,49 @@
 <body>
 
     <nav class="p-6 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-zinc-800 bg-black/50 sticky top-0 z-50 backdrop-blur-md">
-        <h1 class="text-4xl font-black italic tracking-tighter text-red-600 cursor-pointer" onclick="window.location.href='./'">RIZZKING <span class="text-white">MOVIES</span></h1>
+        <h1 class="text-4xl font-black italic tracking-tighter text-red-600 cursor-pointer" onclick="location.reload()">RIZZKING <span class="text-white">MOVIES</span></h1>
         
         <div class="flex gap-4">
-            <button id="movie-nav" onclick="switchCategory('movie')" class="font-bold text-red-600 transition uppercase text-sm">Movies</button>
-            <button id="tv-nav" onclick="switchCategory('tv')" class="font-bold hover:text-red-600 transition uppercase text-sm">TV Shows</button>
+            <button id="movie-tab" onclick="setTab('movie')" class="font-bold text-red-600 transition uppercase text-sm px-4 py-2 rounded-lg">Movies</button>
+            <button id="tv-tab" onclick="setTab('tv')" class="font-bold hover:text-red-600 transition uppercase text-sm px-4 py-2 rounded-lg">TV Shows</button>
         </div>
 
         <div class="relative w-full md:w-96">
-            <input type="text" id="search-input" placeholder="Search for absolute cinema..." 
+            <input type="text" id="search-input" placeholder="Search absolute cinema..." 
                    class="w-full bg-zinc-900 border border-zinc-700 px-5 py-3 rounded-xl focus:outline-none focus:border-red-600 transition">
         </div>
     </nav>
 
     <main class="p-8 max-w-7xl mx-auto">
-        <h2 id="grid-title" class="text-xl font-bold mb-6 text-zinc-500 uppercase tracking-widest">Trending Movies</h2>
+        <h2 id="grid-title" class="text-xl font-bold mb-6 text-zinc-500 uppercase tracking-widest italic border-l-4 border-red-600 pl-4">Trending Movies</h2>
         <div id="movie-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-            <div class="col-span-full text-center py-20 text-zinc-500">Loading the rizz...</div>
-        </div>
+            </div>
     </main>
 
     <div id="player-overlay">
         <div class="flex flex-col h-full">
-            <div class="p-4 bg-zinc-900 flex justify-between items-center border-b border-zinc-800">
+            <div class="p-4 bg-zinc-900 flex justify-between items-center border-b border-zinc-800 flex-wrap gap-4">
                 
-                <div class="flex items-center gap-4 flex-wrap">
-                    <h3 id="playing-title" class="text-xl font-black text-red-600 uppercase italic truncate max-w-[150px]">Now Playing</h3>
+                <div class="flex items-center gap-6">
+                    <h3 id="playing-title" class="text-xl font-black text-red-600 uppercase italic truncate max-w-[200px]">Loading...</h3>
                     
-                    <div id="tv-controls" class="hidden flex gap-2">
-                        <select id="season-select" onchange="changeSeason()" class="tv-select"></select>
-                        <select id="episode-select" onchange="changeEpisode()" class="tv-select"></select>
+                    <div id="tv-ui" style="display: none;" class="flex gap-2">
+                        <select id="s-select" onchange="updateS()" class="tv-select"></select>
+                        <select id="e-select" onchange="updateE()" class="tv-select"></select>
                     </div>
                 </div>
                 
                 <div class="flex items-center gap-4">
                     <div class="flex gap-2">
-                        <button id="srv1" onclick="switchServer(1)" class="bg-zinc-800 px-3 py-1 rounded text-xs font-bold active-btn">Server 1</button>
-                        <button id="srv2" onclick="switchServer(2)" class="bg-zinc-800 px-3 py-1 rounded text-xs font-bold">Server 2</button>
+                        <button id="s1" onclick="serv(1)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black active-btn transition">SERVER 1</button>
+                        <button id="s2" onclick="serv(2)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black transition">SERVER 2</button>
                     </div>
-                    <button onclick="closePlayer()" class="bg-red-600 px-4 py-1.5 rounded-lg font-black shadow-lg hover:bg-red-700 transition">CLOSE ×</button>
+                    <button onclick="closeP()" class="bg-red-600 px-6 py-1.5 rounded-lg font-black text-sm shadow-lg hover:bg-red-700 transition">CLOSE ×</button>
                 </div>
             </div>
             
             <div class="flex-grow bg-black">
-                <iframe id="player-frame" src="" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
+                <iframe id="main-frame" src="" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
             </div>
         </div>
     </div>
@@ -100,142 +97,131 @@
         <p class="font-black italic text-xl uppercase tracking-widest">
             Ur welcome - <span class="anton-name">Anton</span>
         </p>
-        <p class="text-[10px] text-zinc-600 mt-6 tracking-tighter uppercase opacity-50">
+        <p style="text-align: center; color: #52525b; font-size: 10px; text-transform: uppercase; margin-top: 20px; opacity: 0.5; font-family: sans-serif; tracking-tighter;">
             HOT HUZZ HML
         </p>
     </footer>
 
     <script>
-        const API_KEY = 'c151dd5e3f53032433742137e48cd90f'; 
+        const KEY = 'c151dd5e3f53032433742137e48cd90f'; 
         const grid = document.getElementById('movie-grid');
-        const searchInput = document.getElementById('search-input');
+        const qInput = document.getElementById('search-input');
         
-        let currentId = '';
-        let currentType = 'movie'; // Default category
-        let currentS = 1;
-        let currentE = 1;
+        let mode = 'movie'; 
+        let curID = '';
+        let curS = 1;
+        let curE = 1;
 
-        // Switches between Movie and TV mode
-        function switchCategory(type) {
-            currentType = type;
-            searchInput.value = ""; // Clear search when switching tabs
-            
-            // Update UI Colors
-            document.getElementById('movie-nav').className = type === 'movie' ? 'font-bold text-red-600 transition uppercase text-sm' : 'font-bold hover:text-red-600 transition uppercase text-sm';
-            document.getElementById('tv-nav').className = type === 'tv' ? 'font-bold text-red-600 transition uppercase text-sm' : 'font-bold hover:text-red-600 transition uppercase text-sm';
-            
-            loadContent();
+        function setTab(t) {
+            mode = t;
+            qInput.value = "";
+            document.getElementById('movie-tab').style.color = (t === 'movie') ? '#dc2626' : 'white';
+            document.getElementById('tv-tab').style.color = (t === 'tv') ? '#dc2626' : 'white';
+            fetchData();
         }
 
-        async function loadContent(query = '') {
-            const endpoint = query ? `search/${currentType}` : `trending/${currentType}/day`;
-            const queryParam = query ? `&query=${encodeURIComponent(query)}` : '';
-            const url = `https://api.themoviedb.org/3/${endpoint}?api_key=${API_KEY}${queryParam}`;
-
+        async function fetchData(q = "") {
+            const path = q ? `search/${mode}` : `trending/${mode}/day`;
+            const param = q ? `&query=${encodeURIComponent(q)}` : '';
+            const url = `https://api.themoviedb.org/3/${path}?api_key=${KEY}${param}`;
+            
             const res = await fetch(url);
             const data = await res.json();
             
-            const categoryName = currentType === 'movie' ? 'Movies' : 'Shows';
-            document.getElementById('grid-title').innerText = query ? `Search ${categoryName}: ${query}` : `Trending ${categoryName}`;
+            document.getElementById('grid-title').innerText = q ? `RESULTS: ${q.toUpperCase()}` : `TRENDING ${mode.toUpperCase()}S`;
             
-            renderMedia(data.results);
-        }
-
-        function renderMedia(items) {
-            grid.innerHTML = items.map(m => `
-                <div class="movie-card bg-zinc-900 rounded-2xl overflow-hidden shadow-xl" onclick="playMedia('${m.id}', '${currentType}', '${(m.title || m.name).replace(/'/g, "")}')">
+            grid.innerHTML = data.results.map(m => `
+                <div class="movie-card rounded-2xl overflow-hidden shadow-xl" onclick="openP('${m.id}', '${(m.title || m.name).replace(/'/g, "")}')">
                     <img src="${m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : 'https://via.placeholder.com/500x750?text=No+Poster'}" class="w-full">
-                    <div class="p-4">
-                        <h3 class="font-bold text-sm line-clamp-1">${m.title || m.name}</h3>
-                        <div class="flex justify-between items-center mt-2">
-                            <span class="text-xs text-zinc-500">${(m.release_date || m.first_air_date)?.split('-')[0] || 'N/A'}</span>
-                            <span class="text-xs bg-red-600/20 text-red-500 px-2 py-1 rounded">★ ${m.vote_average.toFixed(1)}</span>
+                    <div class="p-4 bg-zinc-950/50">
+                        <h3 class="font-black text-[10px] uppercase truncate">${m.title || m.name}</h3>
+                        <div class="flex justify-between items-center mt-1">
+                            <span class="text-[9px] text-zinc-500 font-bold">${(m.release_date || m.first_air_date)?.split('-')[0] || 'N/A'}</span>
+                            <span class="text-[9px] text-red-500 font-black">★ ${m.vote_average.toFixed(1)}</span>
                         </div>
                     </div>
                 </div>
             `).join('');
         }
 
-        async function playMedia(id, type, title) {
-            currentId = id;
-            currentType = type;
-            currentS = 1;
-            currentE = 1;
+        async function openP(id, title) {
+            curID = id;
+            curS = 1;
+            curE = 1;
             document.getElementById('playing-title').innerText = title;
             
-            const controls = document.getElementById('tv-controls');
-            if (type === 'tv') {
-                controls.classList.remove('hidden');
-                await setupTV(id);
+            const tvUI = document.getElementById('tv-ui');
+            if (mode === 'tv') {
+                tvUI.style.display = 'flex';
+                await loadTVData(id);
             } else {
-                controls.classList.add('hidden');
+                tvUI.style.display = 'none';
             }
 
-            switchServer(1);
+            serv(1);
             document.getElementById('player-overlay').style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
 
-        async function setupTV(id) {
-            const res = await fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${API_KEY}`);
+        async function loadTVData(id) {
+            const res = await fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${KEY}`);
             const data = await res.json();
             
-            const sSelect = document.getElementById('season-select');
-            sSelect.innerHTML = data.seasons
+            const sBox = document.getElementById('s-select');
+            sBox.innerHTML = data.seasons
                 .filter(s => s.season_number > 0)
-                .map(s => `<option value="${s.season_number}">S${s.season_number}</option>`).join('');
+                .map(s => `<option value="${s.season_number}">SEASON ${s.season_number}</option>`).join('');
             
-            await updateEpisodes();
+            await loadEpData();
         }
 
-        async function updateEpisodes() {
-            const sNum = document.getElementById('season-select').value;
-            const res = await fetch(`https://api.themoviedb.org/3/tv/${currentId}/season/${sNum}?api_key=${API_KEY}`);
+        async function loadEpData() {
+            const sNum = document.getElementById('s-select').value;
+            const res = await fetch(`https://api.themoviedb.org/3/tv/${curID}/season/${sNum}?api_key=${KEY}`);
             const data = await res.json();
             
-            const eSelect = document.getElementById('episode-select');
-            eSelect.innerHTML = data.episodes.map(e => `<option value="${e.episode_number}">E${e.episode_number}</option>`).join('');
+            const eBox = document.getElementById('e-select');
+            eBox.innerHTML = data.episodes.map(e => `<option value="${e.episode_number}">EP ${e.episode_number}</option>`).join('');
         }
 
-        function changeSeason() {
-            currentS = document.getElementById('season-select').value;
-            currentE = 1;
-            updateEpisodes().then(() => switchServer(1));
+        function updateS() {
+            curS = document.getElementById('s-select').value;
+            curE = 1;
+            loadEpData().then(() => serv(1));
         }
 
-        function changeEpisode() {
-            currentE = document.getElementById('episode-select').value;
-            switchServer(1);
+        function updateE() {
+            curE = document.getElementById('e-select').value;
+            serv(1);
         }
 
-        function switchServer(num) {
-            const frame = document.getElementById('player-frame');
-            document.getElementById('srv1').classList.toggle('active-btn', num === 1);
-            document.getElementById('srv2').classList.toggle('active-btn', num === 2);
+        function serv(n) {
+            const frame = document.getElementById('main-frame');
+            document.getElementById('s1').classList.toggle('active-btn', n === 1);
+            document.getElementById('s2').classList.toggle('active-btn', n === 2);
             
-            if (num === 1) {
-                frame.src = currentType === 'movie' 
-                    ? `https://vidking.net/embed/movie/${currentId}` 
-                    : `https://vidking.net/embed/tv/${currentId}/${currentS}/${currentE}`;
+            if (n === 1) {
+                frame.src = mode === 'movie' 
+                    ? `https://vidking.net/embed/movie/${curID}` 
+                    : `https://vidking.net/embed/tv/${curID}/${curS}/${curE}`;
             } else {
-                frame.src = currentType === 'movie' 
-                    ? `https://vidsrc.me/embed/movie?tmdb=${currentId}` 
-                    : `https://vidsrc.me/embed/tv?tmdb=${currentId}&sea=${currentS}&epi=${currentE}`;
+                frame.src = mode === 'movie' 
+                    ? `https://vidsrc.me/embed/movie?tmdb=${curID}` 
+                    : `https://vidsrc.me/embed/tv?tmdb=${curID}&sea=${curS}&epi=${curE}`;
             }
         }
 
-        function closePlayer() {
+        function closeP() {
             document.getElementById('player-overlay').style.display = 'none';
-            document.getElementById('player-frame').src = '';
+            document.getElementById('main-frame').src = '';
             document.body.style.overflow = 'auto';
         }
 
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') loadContent(e.target.value);
+        qInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') fetchData(e.target.value);
         });
 
-        // Initial load
-        loadContent();
+        fetchData();
     </script>
 </body>
 </html>
