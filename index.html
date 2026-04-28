@@ -12,6 +12,19 @@
             color: white; 
             font-family: 'Inter', sans-serif;
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="red" stroke="white" stroke-width="1"><path d="M7 2l12 11.2-5.8.8 3.3 7.2-2.2 1-3.3-7.2-4 3.8z"/></svg>'), auto;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* BACKGROUND ANIMATION CANVAS */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
         }
 
         .movie-card { transition: all 0.3s ease; cursor: inherit; border: 1px solid #1a1a1a; }
@@ -34,6 +47,8 @@
     </style>
 </head>
 <body>
+
+    <canvas id="bg-canvas"></canvas>
 
     <nav class="p-6 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-zinc-800 bg-black/50 sticky top-0 z-50 backdrop-blur-md">
         <h1 class="text-4xl font-black italic tracking-tighter text-red-600 cursor-pointer" onclick="window.location.href='./'">RIZZKING <span class="text-white">MOVIES</span></h1>
@@ -90,70 +105,28 @@
         let currentId = '';
         let currentType = 'movie';
 
-        async function loadMovies(query = '') {
-            currentType = 'movie';
-            const url = query 
-                ? `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`
-                : `https://api.themoviedb.org/3/trending/movie/day?api_key=${API_KEY}`;
-            const res = await fetch(url);
-            const data = await res.json();
-            document.getElementById('grid-title').innerText = query ? `Search: ${query}` : "Trending Movies";
-            renderMedia(data.results, 'movie');
+        // --- BACKGROUND ANIMATION LOGIC ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
+        window.addEventListener('resize', resize);
+        resize();
 
-        async function loadTV() {
-            currentType = 'tv';
-            const url = `https://api.themoviedb.org/3/trending/tv/day?api_key=${API_KEY}`;
-            const res = await fetch(url);
-            const data = await res.json();
-            document.getElementById('grid-title').innerText = "Trending Shows";
-            renderMedia(data.results, 'tv');
-        }
-
-        function renderMedia(items, type) {
-            grid.innerHTML = items.map(m => `
-                <div class="movie-card bg-zinc-900 rounded-2xl overflow-hidden shadow-xl" onclick="playMedia('${m.id}', '${type}', '${(m.title || m.name).replace(/'/g, "")}')">
-                    <img src="${m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : 'https://via.placeholder.com/500x750?text=No+Poster'}" class="w-full">
-                    <div class="p-4">
-                        <h3 class="font-bold text-sm line-clamp-1">${m.title || m.name}</h3>
-                        <div class="flex justify-between items-center mt-2">
-                            <span class="text-xs text-zinc-500">${(m.release_date || m.first_air_date)?.split('-')[0] || 'N/A'}</span>
-                            <span class="text-xs bg-red-600/20 text-red-500 px-2 py-1 rounded">★ ${m.vote_average.toFixed(1)}</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function playMedia(id, type, title) {
-            currentId = id;
-            currentType = type;
-            document.getElementById('playing-title').innerText = title;
-            switchServer(1);
-            document.getElementById('player-overlay').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-
-        function switchServer(num) {
-            const frame = document.getElementById('player-frame');
-            document.getElementById('srv1').classList.toggle('active-btn', num === 1);
-            document.getElementById('srv2').classList.toggle('active-btn', num === 2);
-            frame.src = num === 1 
-                ? (currentType === 'movie' ? `https://vidking.net/embed/movie/${currentId}` : `https://vidking.net/embed/tv/${currentId}/1/1`)
-                : (currentType === 'movie' ? `https://vidsrc.me/embed/movie?tmdb=${currentId}` : `https://vidsrc.me/embed/tv?tmdb=${currentId}&sea=1&epi=1`);
-        }
-
-        function closePlayer() {
-            document.getElementById('player-overlay').style.display = 'none';
-            document.getElementById('player-frame').src = '';
-            document.body.style.overflow = 'auto';
-        }
-
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') loadMovies(e.target.value);
-        });
-
-        loadMovies();
-    </script>
-</body>
-</html>
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 5 + 2;
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * 3 - 1.5;
+                this.color = `rgba(220, 38, 38, ${Math.random() * 0.5 + 0.2})`;
+                this.life = 100;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this
