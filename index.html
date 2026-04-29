@@ -189,10 +189,8 @@
                     ? `https://vidking.net/embed/movie/${curID}` 
                     : `https://vidking.net/embed/tv/${curID}/${curS}/${curE}`;
             } else if (n === 2) {
-                // RESTORED ORIGINAL SERVER 2 LOGIC
-                frame.src = mode === 'movie' 
-                    ? `https://vidsrc.me/embed/movie?tmdb=${curID}` 
-                    : `https://vidsrc.me/embed/tv?tmdb=${curID}&sea=${curS}&epi=${curE}`;
+                // EXACT URL STRUCTURE FROM YOUR ORIGINAL WORKING FILE
+                frame.src = (mode === 'movie' ? `https://vidsrc.me/embed/movie?tmdb=${curID}` : `https://vidsrc.me/embed/tv?tmdb=${curID}&sea=${curS}&epi=${curE}`);
             } else if (n === 3) {
                 frame.src = mode === 'movie' 
                     ? `https://player.videasy.net/movie/${curID}` 
