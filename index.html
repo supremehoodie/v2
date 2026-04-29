@@ -189,6 +189,7 @@
                     ? `https://vidking.net/embed/movie/${curID}` 
                     : `https://vidking.net/embed/tv/${curID}/${curS}/${curE}`;
             } else if (n === 2) {
+                // RESTORED ORIGINAL SERVER 2 LOGIC
                 frame.src = mode === 'movie' 
                     ? `https://vidsrc.me/embed/movie?tmdb=${curID}` 
                     : `https://vidsrc.me/embed/tv?tmdb=${curID}&sea=${curS}&epi=${curE}`;
