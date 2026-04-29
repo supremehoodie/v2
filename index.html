@@ -98,7 +98,7 @@
                 </div>
             </div>
             <div class="flex-grow bg-black">
-                <iframe id="main-frame" src="" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; fullscreen" sandbox="allow-forms allow-modals allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation allow-presentation allow-popups allow-popups-to-escape-sandbox allow-storage-access-by-user-activation"></iframe>
+                <iframe id="main-frame" src="" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; fullscreen"></iframe>
             </div>
         </div>
     </div>
@@ -144,4 +144,64 @@
         async function pickRandom() {
             const randPage = Math.floor(Math.random() * 20) + 1; 
             const res = await fetch(`https://api.themoviedb.org/3/discover/${mode}?api_key=${KEY}&page=${randPage}&sort_by=popularity.desc&vote_count.gte=100`);
-            const data =
+            const data = await res.json();
+            const randomItem = data.results[Math.floor(Math.random() * data.results.length)];
+            openP(randomItem.id, randomItem.title || randomItem.name);
+        }
+
+        async function openP(id, title) {
+            curID = id; curS = 1; curE = 1;
+            document.getElementById('playing-title').innerText = title;
+            const tvUI = document.getElementById('tv-ui');
+            if (mode === 'tv') { tvUI.style.display = 'flex'; await loadTVData(id); } else { tvUI.style.display = 'none'; }
+            serv(1);
+            document.getElementById('player-overlay').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        async function loadTVData(id) {
+            const res = await fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${KEY}`);
+            const data = await res.json();
+            document.getElementById('s-select').innerHTML = data.seasons.filter(s => s.season_number > 0)
+                .map(s => `<option value="${s.season_number}">SEASON ${s.season_number}</option>`).join('');
+            await loadEpData();
+        }
+
+        async function loadEpData() {
+            const sNum = document.getElementById('s-select').value;
+            const res = await fetch(`https://api.themoviedb.org/3/tv/${curID}/season/${sNum}?api_key=${KEY}`);
+            const data = await res.json();
+            document.getElementById('e-select').innerHTML = data.episodes.map(e => `<option value="${e.episode_number}">EP ${e.episode_number}</option>`).join('');
+        }
+
+        function updateS() { curS = document.getElementById('s-select').value; curE = 1; loadEpData().then(() => serv(1)); }
+        function updateE() { curE = document.getElementById('e-select').value; serv(1); }
+
+        function serv(n) {
+            const frame = document.getElementById('main-frame');
+            
+            document.getElementById('s1').classList.toggle('active-btn', n === 1);
+            document.getElementById('s2').classList.toggle('active-btn', n === 2);
+            document.getElementById('s3').classList.toggle('active-btn', n === 3);
+            
+            if (n === 1) {
+                frame.src = mode === 'movie' 
+                    ? `https://vidking.net/embed/movie/${curID}` 
+                    : `https://vidking.net/embed/tv/${curID}/${curS}/${curE}`;
+            } else if (n === 2) {
+                frame.src = mode === 'movie' 
+                    ? `https://vidsrc.me/embed/movie?tmdb=${curID}` 
+                    : `https://vidsrc.me/embed/tv?tmdb=${curID}&sea=${curS}&epi=${curE}`;
+            } else if (n === 3) {
+                frame.src = mode === 'movie' 
+                    ? `https://player.videasy.net/movie/${curID}` 
+                    : `https://player.videasy.net/tv/${curID}/${curS}/${curE}`;
+            }
+        }
+
+        function closeP() { document.getElementById('player-overlay').style.display = 'none'; document.getElementById('main-frame').src = ''; document.body.style.overflow = 'auto'; }
+        qInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') fetchData(e.target.value); });
+        fetchData();
+    </script>
+</body>
+</html>
