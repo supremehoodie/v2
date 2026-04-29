@@ -179,22 +179,16 @@
 
         function serv(n) {
             const frame = document.getElementById('main-frame');
-            
             document.getElementById('s1').classList.toggle('active-btn', n === 1);
             document.getElementById('s2').classList.toggle('active-btn', n === 2);
             document.getElementById('s3').classList.toggle('active-btn', n === 3);
-            
-            if (n === 1) {
-                frame.src = mode === 'movie' 
-                    ? `https://vidking.net/embed/movie/${curID}` 
-                    : `https://vidking.net/embed/tv/${curID}/${curS}/${curE}`;
-            } else if (n === 2) {
-                // EXACT URL STRUCTURE FROM YOUR ORIGINAL WORKING FILE
-                frame.src = (mode === 'movie' ? `https://vidsrc.me/embed/movie?tmdb=${curID}` : `https://vidsrc.me/embed/tv?tmdb=${curID}&sea=${curS}&epi=${curE}`);
-            } else if (n === 3) {
-                frame.src = mode === 'movie' 
-                    ? `https://player.videasy.net/movie/${curID}` 
-                    : `https://player.videasy.net/tv/${curID}/${curS}/${curE}`;
+
+            if (n === 3) {
+                frame.src = mode === 'movie' ? `https://player.videasy.net/movie/${curID}` : `https://player.videasy.net/tv/${curID}/${curS}/${curE}`;
+            } else {
+                // THIS IS YOUR ORIGINAL LINE UNTOUCHED
+                frame.src = n === 1 ? (mode === 'movie' ? `https://vidking.net/embed/movie/${curID}` : `https://vidking.net/embed/tv/${curID}/${curS}/${curE}`)
+                                    : (mode === 'movie' ? `https://vidsrc.me/embed/movie?tmdb=${curID}` : `https://vidsrc.me/embed/tv?tmdb=${curID}&sea=${curS}&epi=${curE}`);
             }
         }
 
