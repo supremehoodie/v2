@@ -20,6 +20,7 @@
         #player-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; flex-direction: column; }
         .active-btn { background-color: #dc2626 !important; box-shadow: 0 0 10px #ff0000; }
         
+        /* ANTON HOVER EFFECT */
         .anton-name { transition: all 0.4s ease; color: #ff0000; cursor: inherit; text-decoration: none; }
         .anton-name:hover { color: #ff5555; text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000; }
 
@@ -93,4 +94,102 @@
                         <button id="s2" onclick="serv(2)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black transition">SERVER 2</button>
                         <button id="s3" onclick="serv(3)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black transition">VIDEASY 4K</button>
                     </div>
-                    <button onclick="closeP()" class="bg-red-600 px-6 py-1.5 rounded-lg font-black text-sm shadow-lg hover:bg-red-700 transition">CLOSE ×</button
+                    <button onclick="closeP()" class="bg-red-600 px-6 py-1.5 rounded-lg font-black text-sm shadow-lg hover:bg-red-700 transition">CLOSE ×</button>
+                </div>
+            </div>
+            <div class="flex-grow bg-black">
+                <iframe id="main-frame" src="" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <footer class="rizz-footer">
+        <p class="font-black italic text-xl uppercase tracking-widest">Ur welcome - <span class="anton-name">Anton</span></p>
+        <p style="text-align: center; color: #52525b; font-size: 10px; text-transform: uppercase; margin-top: 20px; opacity: 0.5; font-family: sans-serif; tracking-tighter;">HOT HUZZ HML</p>
+    </footer>
+
+    <script>
+        const KEY = 'c151dd5e3f53032433742137e48cd90f';
+        const grid = document.getElementById('movie-grid');
+        const qInput = document.getElementById('search-input');
+        let mode = 'movie', curID = '', curS = 1, curE = 1;
+
+        function setTab(t) {
+            mode = t; qInput.value = "";
+            document.getElementById('movie-tab').style.color = (t === 'movie') ? '#dc2626' : 'white';
+            document.getElementById('tv-tab').style.color = (t === 'tv') ? '#dc2626' : 'white';
+            fetchData();
+        }
+
+        async function fetchData(q = "") {
+            const path = q ? `search/${mode}` : `trending/${mode}/day`;
+            const param = q ? `&query=${encodeURIComponent(q)}` : '';
+            const res = await fetch(`https://api.themoviedb.org/3/${path}?api_key=${KEY}${param}`);
+            const data = await res.json();
+            document.getElementById('grid-title').innerText = q ? `RESULTS: ${q.toUpperCase()}` : `TRENDING ${mode.toUpperCase()}S`;
+            
+            grid.innerHTML = data.results.map(m => `
+                <div class="movie-card rounded-2xl overflow-hidden shadow-xl" onclick="openP('${m.id}', '${(m.title || m.name).replace(/'/g, "")}')">
+                    <img src="${m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : 'https://via.placeholder.com/500x750?text=No+Poster'}" class="w-full">
+                    <div class="p-4 bg-zinc-900">
+                        <h3 class="font-black text-[10px] uppercase truncate">${m.title || m.name}</h3>
+                        <div class="flex justify-between items-center mt-1">
+                            <span class="text-[9px] text-zinc-500 font-bold">${(m.release_date || m.first_air_date)?.split('-')[0] || 'N/A'}</span>
+                            <span class="text-[9px] text-red-500 font-black">★ ${m.vote_average.toFixed(1)}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function pickRandom() {
+            const randPage = Math.floor(Math.random() * 20) + 1; 
+            const res = await fetch(`https://api.themoviedb.org/3/discover/${mode}?api_key=${KEY}&page=${randPage}&sort_by=popularity.desc&vote_count.gte=100`);
+            const data = await res.json();
+            const randomItem = data.results[Math.floor(Math.random() * data.results.length)];
+            openP(randomItem.id, randomItem.title || randomItem.name);
+        }
+
+        async function openP(id, title) {
+            curID = id; curS = 1; curE = 1;
+            document.getElementById('playing-title').innerText = title;
+            const tvUI = document.getElementById('tv-ui');
+            if (mode === 'tv') { 
+                tvUI.style.display = 'flex'; 
+                await loadTVData(id); 
+            } else { 
+                tvUI.style.display = 'none'; 
+            }
+            serv(1);
+            document.getElementById('player-overlay').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        async function loadTVData(id) {
+            const res = await fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${KEY}`);
+            const data = await res.json();
+            document.getElementById('s-select').innerHTML = data.seasons.filter(s => s.season_number > 0)
+                .map(s => `<option value="${s.season_number}">SEASON ${s.season_number}</option>`).join('');
+            await loadEpData();
+        }
+
+        async function loadEpData() {
+            const sNum = document.getElementById('s-select').value;
+            const res = await fetch(`https://api.themoviedb.org/3/tv/${curID}/season/${sNum}?api_key=${KEY}`);
+            const data = await res.json();
+            document.getElementById('e-select').innerHTML = data.episodes.map(e => `<option value="${e.episode_number}">EP ${e.episode_number}</option>`).join('');
+        }
+
+        function updateS() { 
+            curS = document.getElementById('s-select').value; 
+            curE = 1; 
+            loadEpData().then(() => serv(1)); 
+        }
+
+        function updateE() { 
+            curE = document.getElementById('e-select').value; 
+            serv(1); 
+        }
+
+        function serv(n) {
+            const frame = document.getElementById('main-frame
