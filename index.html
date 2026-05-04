@@ -50,6 +50,24 @@
             transform: scale(1.05);
             box-shadow: 0 0 25px rgba(220, 38, 38, 0.7);
         }
+
+        /* CATEGORY STYLES */
+        .genre-pill {
+            white-space: nowrap;
+            transition: all 0.2s;
+            border: 1px solid #27272a;
+        }
+        .genre-pill:hover {
+            border-color: #dc2626;
+            background: #18181b;
+        }
+        .genre-pill.active {
+            background: #dc2626;
+            border-color: #dc2626;
+            color: white;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body>
@@ -74,7 +92,13 @@
     </nav>
 
     <main class="p-8 max-w-7xl mx-auto">
-        <h2 id="grid-title" class="text-xl font-bold mb-6 text-zinc-500 uppercase tracking-widest italic border-l-4 border-red-600 pl-4">Trending Movies</h2>
+        <h2 id="grid-title" class="text-xl font-bold mb-4 text-zinc-500 uppercase tracking-widest italic border-l-4 border-red-600 pl-4">Trending Movies</h2>
+        
+        <!-- CATEGORY SELECTOR -->
+        <div id="genre-container" class="flex gap-3 overflow-x-auto no-scrollbar mb-8 pb-2">
+            <!-- Genres injected here -->
+        </div>
+
         <div id="movie-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6"></div>
     </main>
 
@@ -93,7 +117,6 @@
                         <button id="s1" onclick="serv(1)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black active-btn transition">SERVER 1</button>
                         <button id="s2" onclick="serv(2)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black transition">SERVER 2</button>
                         <button id="s3" onclick="serv(3)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black transition">VIDEASY 4K</button>
-                        <button id="s4" onclick="serv(4)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black transition border border-red-600/30">VIDSRC PRO</button>
                     </div>
                     <button onclick="closeP()" class="bg-red-600 px-6 py-1.5 rounded-lg font-black text-sm shadow-lg hover:bg-red-700 transition">CLOSE ×</button>
                 </div>
@@ -113,26 +136,71 @@
         const KEY = 'c151dd5e3f53032433742137e48cd90f'; 
         const grid = document.getElementById('movie-grid');
         const qInput = document.getElementById('search-input');
+        const genreBox = document.getElementById('genre-container');
         let mode = 'movie', curID = '', curS = 1, curE = 1;
+
+        const genres = {
+            movie: [
+                { id: 28, name: "Action" }, { id: 35, name: "Comedy" }, { id: 27, name: "Horror" }, 
+                { id: 878, name: "Sci-Fi" }, { id: 16, name: "Animation" }, { id: 10749, name: "Romance" },
+                { id: 53, name: "Thriller" }, { id: 18, name: "Drama" }
+            ],
+            tv: [
+                { id: 10759, name: "Action & Adventure" }, { id: 35, name: "Comedy" }, { id: 18, name: "Drama" }, 
+                { id: 9648, name: "Mystery" }, { id: 10765, name: "Sci-Fi & Fantasy" }, { id: 16, name: "Animation" }
+            ]
+        };
 
         function setTab(t) {
             mode = t; qInput.value = "";
             document.getElementById('movie-tab').style.color = (t === 'movie') ? '#dc2626' : 'white';
             document.getElementById('tv-tab').style.color = (t === 'tv') ? '#dc2626' : 'white';
+            renderGenres();
             fetchData();
         }
 
+        function renderGenres() {
+            genreBox.innerHTML = `<button onclick="fetchData()" class="genre-pill active px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider">All</button>` + 
+            genres[mode].map(g => `
+                <button onclick="fetchByGenre(${g.id}, '${g.name}')" class="genre-pill px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider text-zinc-400 bg-zinc-900">
+                    ${g.name}
+                </button>
+            `).join('');
+        }
+
+        async function fetchByGenre(id, name) {
+            // Update active pill UI
+            document.querySelectorAll('.genre-pill').forEach(btn => {
+                btn.classList.remove('active', 'text-white');
+                btn.classList.add('text-zinc-400', 'bg-zinc-900');
+            });
+            event.currentTarget.classList.add('active', 'text-white');
+            event.currentTarget.classList.remove('text-zinc-400', 'bg-zinc-900');
+
+            const res = await fetch(`https://api.themoviedb.org/3/discover/${mode}?api_key=${KEY}&with_genres=${id}&sort_by=popularity.desc`);
+            const data = await res.json();
+            document.getElementById('grid-title').innerText = `${name.toUpperCase()} ${mode.toUpperCase()}S`;
+            renderGrid(data.results);
+        }
+
         async function fetchData(q = "") {
+            // Reset Active UI to 'All'
+            document.querySelectorAll('.genre-pill').forEach(btn => btn.classList.remove('active'));
+            if(genreBox.firstChild) genreBox.firstChild.classList.add('active');
+
             const path = q ? `search/${mode}` : `trending/${mode}/day`;
             const param = q ? `&query=${encodeURIComponent(q)}` : '';
             const res = await fetch(`https://api.themoviedb.org/3/${path}?api_key=${KEY}${param}`);
             const data = await res.json();
             document.getElementById('grid-title').innerText = q ? `RESULTS: ${q.toUpperCase()}` : `TRENDING ${mode.toUpperCase()}S`;
-            
-            grid.innerHTML = data.results.map(m => `
+            renderGrid(data.results);
+        }
+
+        function renderGrid(results) {
+            grid.innerHTML = results.map(m => `
                 <div class="movie-card rounded-2xl overflow-hidden shadow-xl" onclick="openP('${m.id}', '${(m.title || m.name).replace(/'/g, "")}')">
                     <img src="${m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : 'https://via.placeholder.com/500x750?text=No+Poster'}" class="w-full">
-                    <div class="p-4 bg-zinc-900">
+                    <div class="p-4 bg-zinc-900/50">
                         <h3 class="font-black text-[10px] uppercase truncate">${m.title || m.name}</h3>
                         <div class="flex justify-between items-center mt-1">
                             <span class="text-[9px] text-zinc-500 font-bold">${(m.release_date || m.first_air_date)?.split('-')[0] || 'N/A'}</span>
@@ -184,11 +252,8 @@
             document.getElementById('s1').classList.toggle('active-btn', n === 1);
             document.getElementById('s2').classList.toggle('active-btn', n === 2);
             document.getElementById('s3').classList.toggle('active-btn', n === 3);
-            document.getElementById('s4').classList.toggle('active-btn', n === 4);
 
-            if (n === 4) {
-                frame.src = mode === 'movie' ? `https://vidsrc.to/embed/movie/${curID}` : `https://vidsrc.to/embed/tv/${curID}/${curS}/${curE}`;
-            } else if (n === 3) {
+            if (n === 3) {
                 frame.src = mode === 'movie' ? `https://player.videasy.net/movie/${curID}` : `https://player.videasy.net/tv/${curID}/${curS}/${curE}`;
             } else if (n === 2) {
                 frame.src = mode === 'movie' ? `https://vidsrc.me/embed/movie?tmdb=${curID}` : `https://vidsrc.me/embed/tv?tmdb=${curID}&sea=${curS}&epi=${curE}`;
@@ -200,6 +265,7 @@
         function closeP() { document.getElementById('player-overlay').style.display = 'none'; document.getElementById('main-frame').src = ''; document.body.style.overflow = 'auto'; }
         qInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') fetchData(e.target.value); });
         
+        renderGenres();
         fetchData();
     </script>
 </body>
