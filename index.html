@@ -6,11 +6,12 @@
     <title>RizzKing Movies | Absolute Cinema</title>
     
     <meta property="og:title" content="RizzKing Movies | Absolute Cinema">
-    <meta property="og:description" content="Live Sports, Movies, and TV. No ads. No BS.">
+    <meta property="og:description" content="Live Sports & Absolute Cinema. No ads. No BS.">
     <meta name="theme-color" content="#dc2626">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* GLOBAL RED CURSOR & THEME */
         html, body { 
             background-color: #050505; 
             color: white; 
@@ -26,6 +27,7 @@
         
         .active-btn { background-color: #dc2626 !important; box-shadow: 0 0 10px #ff0000; }
         
+        /* PULSING LOGIN BUTTON */
         .rizz-login-btn { 
             background: #dc2626; color: white; font-weight: 900; text-transform: uppercase; 
             border-radius: 8px; padding: 8px 16px; transition: all 0.3s; 
@@ -33,6 +35,7 @@
         }
         @keyframes loginPulse { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); } 70% { box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
 
+        /* SKELETONS */
         .skeleton { background: #1a1a1a; position: relative; overflow: hidden; border-radius: 1rem; height: 300px; }
         .skeleton::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); animation: loading 1.5s infinite; }
         @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
@@ -45,8 +48,9 @@
         .genre-pill.active { background: #dc2626; border-color: #dc2626; color: white; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        .live-badge { position: absolute; top: 10px; left: 10px; background: #dc2626; color: white; font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; animation: pulseRed 1.5s infinite; z-index: 10; }
-        @keyframes pulseRed { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        /* LIVE UI */
+        .live-tag { position: absolute; top: 10px; left: 10px; background: #dc2626; color: white; font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; animation: pulseRed 1.5s infinite; z-index: 10; }
+        @keyframes pulseRed { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         
         .resume-badge { position: absolute; bottom: 8px; left: 8px; background: #dc2626; color: white; font-size: 8px; font-weight: 900; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; z-index: 10; }
     </style>
@@ -65,7 +69,7 @@
         <div class="flex gap-2 md:gap-4">
             <button id="movie-tab" onclick="setTab('movie')" class="font-bold text-red-600 transition uppercase text-[10px] md:text-sm px-3 md:px-4 py-2 rounded-lg">Movies</button>
             <button id="tv-tab" onclick="setTab('tv')" class="font-bold hover:text-red-600 transition uppercase text-[10px] md:text-sm px-3 md:px-4 py-2 rounded-lg">TV Shows</button>
-            <button id="live-tab" onclick="setTab('live')" class="font-bold hover:text-red-600 transition uppercase text-[10px] md:text-sm px-3 md:px-4 py-2 rounded-lg border border-zinc-800">Live TV</button>
+            <button id="live-tab" onclick="setTab('live')" class="font-bold hover:text-red-600 transition uppercase text-[10px] md:text-sm px-3 md:px-4 py-2 rounded-lg border border-red-600/30">Live Sports</button>
         </div>
 
         <div class="flex flex-col items-center md:items-end w-full md:w-96 gap-2">
@@ -76,6 +80,7 @@
     </nav>
 
     <main class="p-8 max-w-7xl mx-auto">
+        <!-- USER VAULT SECTION -->
         <section id="user-vault" class="user-shelf">
             <h2 class="text-xl font-bold mb-6 text-white uppercase tracking-widest italic border-l-4 border-red-600 pl-4">My Rizz Vault</h2>
             <div id="fav-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8"></div>
@@ -88,6 +93,7 @@
         <div id="movie-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6"></div>
     </main>
 
+    <!-- AUTH MODAL -->
     <div id="auth-overlay">
         <div class="bg-zinc-900 p-8 rounded-2xl border border-red-600 w-full max-w-md shadow-2xl">
             <h2 id="auth-title" class="text-3xl font-black italic text-red-600 mb-6 uppercase">Login to Vault</h2>
@@ -102,6 +108,7 @@
         </div>
     </div>
 
+    <!-- PLAYER OVERLAY -->
     <div id="player-overlay">
         <div class="flex flex-col h-full">
             <div class="p-4 bg-zinc-900 flex justify-between items-center border-b border-zinc-800 flex-wrap gap-4">
@@ -113,30 +120,35 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
-                    <div id="server-list" class="flex gap-2">
-                        <button id="s1" onclick="serv(1)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black active-btn transition">SERVER 1</button>
-                        <button id="s2" onclick="serv(2)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black transition">SERVER 2</button>
-                        <button id="s3" onclick="serv(3)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black transition">VIDEASY 4K</button>
+                    <div id="server-panel" class="flex gap-2">
+                        <button id="sv1" onclick="serv(1)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black active-btn transition">SERVER 1</button>
+                        <button id="sv2" onclick="serv(2)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black transition">SERVER 2</button>
+                        <button id="sv3" onclick="serv(3)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black transition">SERVER 3</button>
                     </div>
                     <button onclick="closeP()" class="bg-red-600 px-6 py-1.5 rounded-lg font-black text-sm shadow-lg hover:bg-red-700 transition">CLOSE ×</button>
                 </div>
             </div>
-            <div class="h-[60vh] bg-black">
+            <div class="h-[65vh] bg-black">
                 <iframe id="main-frame" src="" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
             </div>
-            <div id="recommend-section" class="p-8 bg-zinc-950 flex-grow">
-                <h4 class="text-red-600 font-black italic uppercase tracking-widest mb-6">More Like This</h4>
+            <div id="extra-section" class="p-8 bg-zinc-950 flex-grow">
+                <h4 id="extra-title" class="text-red-600 font-black italic uppercase tracking-widest mb-6">More Like This</h4>
                 <div id="similar-grid" class="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-4"></div>
             </div>
         </div>
     </div>
+
+    <footer class="rizz-footer">
+        <p class="font-black italic text-xl uppercase tracking-widest">Ur welcome - <span class="text-red-600">Anton</span></p>
+        <p style="text-align: center; color: #52525b; font-size: 10px; text-transform: uppercase; margin-top: 20px; opacity: 0.5;">HOT HUZZ HML</p>
+    </footer>
 
     <script>
         const KEY = 'c151dd5e3f53032433742137e48cd90f'; 
         const grid = document.getElementById('movie-grid');
         const qInput = document.getElementById('search-input');
         const genreBox = document.getElementById('genre-container');
-        let mode = 'movie', curID = '', curS = 1, curE = 1;
+        let mode = 'movie', curID = '', curS = 1, curE = 1, curLiveChannel = '';
 
         let users = {}; let currentUser = null; let isRegistering = false;
 
@@ -145,15 +157,16 @@
             tv: [{id:10759,name:"Action & Adventure"},{id:35,name:"Comedy"},{id:18,name:"Drama"},{id:9648,name:"Mystery"},{id:10765,name:"Sci-Fi & Fantasy"},{id:16,name:"Animation"}]
         };
 
-        const sportsChannels = [
-            { id: 'espn', name: 'ESPN', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/ESPN_wordmark.svg/2560px-ESPN_wordmark.svg.png' },
-            { id: 'sky-sports-main', name: 'Sky Sports', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Sky_Sports_logo.svg/1280px-Sky_Sports_logo.svg.png' },
-            { id: 'bt-sport-1', name: 'TNT Sports 1', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/TNT_Sports_logo.svg/1024px-TNT_Sports_logo.svg.png' },
-            { id: 'fox-sports', name: 'Fox Sports', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Fox_Sports_logo.svg/1280px-Fox_Sports_logo.svg.png' },
-            { id: 'tsn-1', name: 'TSN 1', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/TSN_logo.svg/1280px-TSN_logo.svg.png' },
-            { id: 'nbc-sports', name: 'NBC Sports', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/NBC_Sports_logo.svg/2560px-NBC_Sports_logo.svg.png' }
+        const liveSports = [
+            { id: 'espn', name: 'ESPN', icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/ESPN_wordmark.svg/2560px-ESPN_wordmark.svg.png' },
+            { id: 'sky-sports-main', name: 'Sky Sports', icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Sky_Sports_logo.svg/1280px-Sky_Sports_logo.svg.png' },
+            { id: 'tnt-sports-1', name: 'TNT Sports 1', icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/TNT_Sports_logo.svg/1024px-TNT_Sports_logo.svg.png' },
+            { id: 'fox-sports-1', name: 'Fox Sports 1', icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Fox_Sports_logo.svg/1280px-Fox_Sports_logo.svg.png' },
+            { id: 'nbc-sports', name: 'NBC Sports', icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/NBC_Sports_logo.svg/2560px-NBC_Sports_logo.svg.png' },
+            { id: 'tsn-1', name: 'TSN 1', icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/TSN_logo.svg/1280px-TSN_logo.svg.png' }
         ];
 
+        // SESSION CHECK
         const savedSession = sessionStorage.getItem('rizzSession');
         if (savedSession) {
             const data = JSON.parse(savedSession);
@@ -162,15 +175,10 @@
             setTimeout(updateUserUI, 100);
         }
 
-        // --- AUTH & SYNC ---
+        // DB FUNCTIONS
         function openAuth() { document.getElementById('auth-overlay').style.display = 'flex'; }
         function closeAuth() { document.getElementById('auth-overlay').style.display = 'none'; }
-        function toggleAuthMode() {
-            isRegistering = !isRegistering;
-            document.getElementById('auth-title').innerText = isRegistering ? "Create Vault" : "Login to Vault";
-            document.getElementById('auth-action-btn').innerText = isRegistering ? "Register Account" : "Enter Vault";
-            document.getElementById('auth-toggle-btn').innerText = isRegistering ? "Login" : "Register";
-        }
+        function toggleAuthMode() { isRegistering = !isRegistering; document.getElementById('auth-title').innerText = isRegistering ? "Create Vault" : "Login to Vault"; document.getElementById('auth-action-btn').innerText = isRegistering ? "Register Account" : "Enter Vault"; }
         async function handleAuth() {
             const u = document.getElementById('auth-user').value.toLowerCase();
             const p = document.getElementById('auth-pass').value;
@@ -180,7 +188,7 @@
             const res = await fetch('auth.php', { method: 'POST', body: formData });
             const data = await res.json();
             if(data.success) {
-                if(isRegistering) { alert("Registered! Now login."); toggleAuthMode(); } 
+                if(isRegistering) { alert("Registered! Login now."); toggleAuthMode(); } 
                 else { currentUser = data.username; users[currentUser] = { favorites: data.favorites, watched: data.watched }; sessionStorage.setItem('rizzSession', JSON.stringify(data)); updateUserUI(); closeAuth(); }
             } else { alert(data.error); }
         }
@@ -218,17 +226,15 @@
             `).join('');
         }
 
-        // --- NAVIGATION & TABS ---
+        // TAB NAVIGATION
         function setTab(t) {
-            mode = t;
-            qInput.value = "";
-            const tabs = ['movie-tab', 'tv-tab', 'live-tab'];
-            tabs.forEach(id => document.getElementById(id).style.color = (id === t+'-tab') ? '#dc2626' : 'white');
-            
+            mode = t; qInput.value = "";
+            document.querySelectorAll('nav button[id$="-tab"]').forEach(btn => btn.style.color = 'white');
+            document.getElementById(t + '-tab').style.color = '#dc2626';
             if(t === 'live') {
                 renderLiveGrid();
                 genreBox.innerHTML = "";
-                document.getElementById('grid-title').innerText = "LIVE SPORTS CHANNELS";
+                document.getElementById('grid-title').innerText = "LIVE SPORTS HUB";
             } else {
                 renderGenres();
                 fetchData();
@@ -241,25 +247,30 @@
         }
 
         function renderLiveGrid() {
-            grid.innerHTML = sportsChannels.map(c => `
-                <div class="movie-card rounded-2xl overflow-hidden shadow-xl p-4 flex flex-col items-center justify-center h-64 border-zinc-800" onclick="openLive('${c.id}', '${c.name}')">
-                    <div class="live-badge">LIVE</div>
-                    <img src="${c.logo}" class="max-w-[80%] max-h-[100px] object-contain mb-4">
-                    <h3 class="font-black text-sm uppercase text-center">${c.name}</h3>
+            grid.innerHTML = liveSports.map(c => `
+                <div class="movie-card rounded-2xl overflow-hidden shadow-xl p-8 flex flex-col items-center justify-center h-64 border-zinc-800" onclick="openLive('${c.id}', '${c.name}', '${c.icon}')">
+                    <div class="live-tag">LIVE</div>
+                    <img src="${c.icon}" class="max-w-[70%] max-h-[80px] object-contain mb-6 grayscale hover:grayscale-0 transition">
+                    <h3 class="font-black text-xs uppercase text-zinc-400">${c.name}</h3>
                 </div>
             `).join('');
         }
 
-        // --- PLAYER LOGIC ---
+        // PLAYER LOGIC
         async function openP(id, title, poster) {
+            mode = (id.length > 10) ? 'movie' : mode; // Quick fix for vault clicks
             curID = id; curS = 1; curE = 1;
             document.getElementById('playing-title').innerText = title;
-            document.getElementById('recommend-section').style.display = 'block';
-            document.getElementById('server-list').style.display = 'flex';
+            document.getElementById('extra-section').style.display = 'block';
+            document.getElementById('extra-title').innerText = "More Like This";
+            document.getElementById('sv1').innerText = "SERVER 1";
+            document.getElementById('sv2').innerText = "SERVER 2";
+            document.getElementById('sv3').innerText = "SERVER 3";
+            
             if(currentUser) {
                 const history = users[currentUser].watched;
-                const existingIdx = history.findIndex(h => h.id == id);
-                if(existingIdx > -1) history.splice(existingIdx, 1);
+                const idx = history.findIndex(h => h.id == id);
+                if(idx > -1) history.splice(idx, 1);
                 history.push({id, title, poster});
                 syncToDB('watched'); renderUserVault();
             }
@@ -270,13 +281,16 @@
             document.body.style.overflow = 'hidden';
         }
 
-        function openLive(id, name) {
+        function openLive(id, name, icon) {
+            curLiveChannel = id;
             document.getElementById('playing-title').innerText = name;
             document.getElementById('tv-ui').style.display = 'none';
-            document.getElementById('recommend-section').style.display = 'none';
-            document.getElementById('server-list').style.display = 'none';
-            // Placeholder for Live TV embedder (e.g., dlive.to or similar)
-            document.getElementById('main-frame').src = `https://vidsrc.stream/live/${id}`; 
+            document.getElementById('extra-section').style.display = 'none';
+            document.getElementById('sv1').innerText = "HD STREAM 1";
+            document.getElementById('sv2').innerText = "LQ STREAM 2";
+            document.getElementById('sv3').innerText = "LQ STREAM 3";
+            
+            servLive(1);
             document.getElementById('player-overlay').style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
@@ -308,23 +322,50 @@
         function updateE() { curE = document.getElementById('e-select').value; serv(1); }
 
         function serv(n) {
+            if(mode === 'live') return servLive(n);
             const frame = document.getElementById('main-frame');
-            document.querySelectorAll('#server-list button').forEach(btn => btn.classList.remove('active-btn'));
-            const btn = document.getElementById('s'+n); if(btn) btn.classList.add('active-btn');
-            if (n === 3) frame.src = mode === 'movie' ? `https://player.videasy.net/movie/${curID}` : `https://player.videasy.net/tv/${curID}/${curS}/${curE}`;
+            document.querySelectorAll('#server-panel button').forEach(btn => btn.classList.remove('active-btn'));
+            document.getElementById('sv'+n).classList.add('active-btn');
+            
+            if (n === 3) frame.src = mode === 'movie' ? `https://vidking.net/embed/movie/${curID}` : `https://vidking.net/embed/tv/${curID}/${curS}/${curE}`;
             else if (n === 2) frame.src = mode === 'movie' ? `https://vidsrc.me/embed/movie?tmdb=${curID}` : `https://vidsrc.me/embed/tv?tmdb=${curID}&sea=${curS}&epi=${curE}`;
-            else frame.src = mode === 'movie' ? `https://vidking.net/embed/movie/${curID}` : `https://vidking.net/embed/tv/${curID}/${curS}/${curE}`;
+            else frame.src = mode === 'movie' ? `https://player.videasy.net/movie/${curID}` : `https://player.videasy.net/tv/${curID}/${curS}/${curE}`;
+        }
+
+        function servLive(n) {
+            const frame = document.getElementById('main-frame');
+            document.querySelectorAll('#server-panel button').forEach(btn => btn.classList.remove('active-btn'));
+            document.getElementById('sv'+n).classList.add('active-btn');
+            
+            // "Cineby Style" Aggregator Logic - Pulls from stable live scrapers
+            const providers = [
+                `https://vidsrc.stream/live/${curLiveChannel}`,
+                `https://embed.su/live/${curLiveChannel}`,
+                `https://streamed.su/watch/${curLiveChannel}`
+            ];
+            frame.src = providers[n-1];
         }
 
         function closeP() { document.getElementById('player-overlay').style.display = 'none'; document.getElementById('main-frame').src = ''; document.body.style.overflow = 'auto'; }
         qInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') fetchData(e.target.value); });
         
+        async function fetchByGenre(id, name) {
+            document.querySelectorAll('.genre-pill').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            grid.innerHTML = Array(12).fill('<div class="skeleton"></div>').join('');
+            const res = await fetch(`https://api.themoviedb.org/3/discover/${mode}?api_key=${KEY}&with_genres=${id}&sort_by=popularity.desc`);
+            const data = await res.json();
+            document.getElementById('grid-title').innerText = `${name.toUpperCase()} ${mode.toUpperCase()}S`;
+            renderGrid(data.results);
+        }
+
         async function fetchData(q = "") {
             grid.innerHTML = Array(12).fill('<div class="skeleton"></div>').join('');
             const path = q ? `search/${mode}` : `trending/${mode}/day`;
             const param = q ? `&query=${encodeURIComponent(q)}` : '';
             const res = await fetch(`https://api.themoviedb.org/3/${path}?api_key=${KEY}${param}`);
             const data = await res.json();
+            document.getElementById('grid-title').innerText = q ? `RESULTS: ${q.toUpperCase()}` : `TRENDING ${mode.toUpperCase()}S`;
             renderGrid(data.results);
         }
 
@@ -338,6 +379,13 @@
                     <img src="${m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : 'https://via.placeholder.com/500x750?text=No+Poster'}" class="w-full">
                     <div class="p-4 bg-zinc-900/50 text-[10px] font-black uppercase truncate">${m.title || m.name}</div>
                 </div>`}).join('');
+        }
+
+        async function pickRandom() {
+            const res = await fetch(`https://api.themoviedb.org/3/discover/${mode}?api_key=${KEY}&sort_by=popularity.desc`);
+            const data = await res.json();
+            const m = data.results[Math.floor(Math.random() * data.results.length)];
+            openP(m.id, (m.title || m.name).replace(/'/g, ""), m.poster_path);
         }
 
         renderGenres(); fetchData();
