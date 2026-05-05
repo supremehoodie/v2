@@ -57,6 +57,8 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
         .resume-badge { position: absolute; bottom: 8px; left: 8px; background: #dc2626; color: white; font-size: 8px; font-weight: 900; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; z-index: 10; }
+
+        .tv-select { background: #111; color: #ff0000; border: 1px solid #dc2626; padding: 5px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 900; outline: none; }
     </style>
 </head>
 <body>
@@ -117,15 +119,15 @@
                 <div class="flex items-center gap-6">
                     <h3 id="playing-title" class="text-xl font-black text-red-600 uppercase italic truncate max-w-[200px]">Loading...</h3>
                     <div id="tv-ui" style="display: none;" class="flex gap-2">
-                        <select id="s-select" onchange="updateS()" class="tv-select text-[10px]"></select>
-                        <select id="e-select" onchange="updateE()" class="tv-select text-[10px]"></select>
+                        <select id="s-select" onchange="updateS()" class="tv-select"></select>
+                        <select id="e-select" onchange="updateE()" class="tv-select"></select>
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
                     <div id="server-panel" class="flex gap-2">
                         <button id="sv1" onclick="serv(1)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black active-btn transition">SERVER 1</button>
                         <button id="sv2" onclick="serv(2)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black transition">SERVER 2</button>
-                        <button id="sv3" onclick="serv(3)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black transition">SERVER 3</button>
+                        <button id="sv3" onclick="serv(3)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black transition">VIDEASY 4K</button>
                     </div>
                     <button onclick="closeP()" class="bg-red-600 px-6 py-1.5 rounded-lg font-black text-sm shadow-lg hover:bg-red-700 transition">CLOSE ×</button>
                 </div>
@@ -154,7 +156,6 @@
             tv: [{id:10759,name:"Action & Adventure"},{id:35,name:"Comedy"},{id:18,name:"Drama"},{id:9648,name:"Mystery"},{id:10765,name:"Sci-Fi & Fantasy"},{id:16,name:"Animation"}]
         };
 
-        // SESSION CHECK
         const savedSession = sessionStorage.getItem('rizzSession');
         if (savedSession) {
             const data = JSON.parse(savedSession);
@@ -163,7 +164,6 @@
             setTimeout(updateUserUI, 100);
         }
 
-        // DATABASE HELPERS
         function openAuth() { document.getElementById('auth-overlay').style.display = 'flex'; }
         function closeAuth() { document.getElementById('auth-overlay').style.display = 'none'; }
         function toggleAuthMode() { isRegistering = !isRegistering; document.getElementById('auth-title').innerText = isRegistering ? "Create Vault" : "Login to Vault"; }
@@ -226,7 +226,6 @@
             syncToDB('favorites'); updateUserUI();
         }
 
-        // NAVIGATION
         function setTab(t) { mode = t; qInput.value = ""; renderGenres(); fetchData(); }
         function renderGenres() {
             genreBox.innerHTML = `<button onclick="fetchData()" class="genre-pill active">All</button>` + 
@@ -265,7 +264,6 @@
                 </div>`}).join('');
         }
 
-        // PLAYER
         async function openP(id, title, poster) {
             curID = id; curS = 1; curE = 1;
             document.getElementById('playing-title').innerText = title;
@@ -294,7 +292,7 @@
         async function loadTVData(id) {
             const res = await fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${KEY}`);
             const data = await res.json();
-            document.getElementById('s-select').innerHTML = data.seasons.filter(s => s.season_number > 0).map(s => `<option value="${s.season_number}">S${s.season_number}</option>`).join('');
+            document.getElementById('s-select').innerHTML = data.seasons.filter(s => s.season_number > 0).map(s => `<option value="${s.season_number}">SEASON ${s.season_number}</option>`).join('');
             await loadEpData();
         }
 
@@ -302,7 +300,7 @@
             const sNum = document.getElementById('s-select').value;
             const res = await fetch(`https://api.themoviedb.org/3/tv/${curID}/season/${sNum}?api_key=${KEY}`);
             const data = await res.json();
-            document.getElementById('e-select').innerHTML = data.episodes.map(e => `<option value="${e.episode_number}">E${e.episode_number}</option>`).join('');
+            document.getElementById('e-select').innerHTML = data.episodes.map(e => `<option value="${e.episode_number}">EP ${e.episode_number}</option>`).join('');
         }
 
         function updateS() { curS = document.getElementById('s-select').value; curE = 1; loadEpData().then(() => serv(1)); }
@@ -313,9 +311,9 @@
             document.querySelectorAll('#server-panel button').forEach(btn => btn.classList.remove('active-btn'));
             document.getElementById('sv'+n).classList.add('active-btn');
             const providers = [
-                mode === 'movie' ? `https://player.videasy.net/movie/${curID}` : `https://player.videasy.net/tv/${curID}/${curS}/${curE}`,
+                mode === 'movie' ? `https://vidking.net/embed/movie/${curID}` : `https://vidking.net/embed/tv/${curID}/${curS}/${curE}`,
                 mode === 'movie' ? `https://vidsrc.me/embed/movie?tmdb=${curID}` : `https://vidsrc.me/embed/tv?tmdb=${curID}&sea=${curS}&epi=${curE}`,
-                mode === 'movie' ? `https://vidking.net/embed/movie/${curID}` : `https://vidking.net/embed/tv/${curID}/${curS}/${curE}`
+                mode === 'movie' ? `https://player.videasy.net/movie/${curID}` : `https://player.videasy.net/tv/${curID}/${curS}/${curE}`
             ];
             frame.src = providers[n-1];
         }
