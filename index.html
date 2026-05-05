@@ -31,8 +31,13 @@
         .movie-card:hover { transform: translateY(-10px); filter: drop-shadow(0 0 15px rgba(220, 38, 38, 0.5)); border-color: #ff0000; }
         
         #player-overlay, #auth-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; flex-direction: column; overflow-y: auto; }
-        #auth-overlay { justify-content: center; align-items: center; background: rgba(0,0,0,0.9); backdrop-blur: 10px; }
         
+        /* AUTH MODAL FORMATTING */
+        #auth-overlay { justify-content: center; align-items: center; background: rgba(0,0,0,0.9); backdrop-blur: 10px; }
+        .auth-input { width: 100%; margin-bottom: 15px; background: #111; color: white; border: 1px solid #dc2626; padding: 10px; border-radius: 8px; outline: none; }
+        .auth-btn { background: linear-gradient(45deg, #dc2626, #7f1d1d); box-shadow: 0 0 15px rgba(220, 38, 38, 0.4); width: 100%; py: 1rem; border-radius: 12px; font-weight: 900; text-transform: uppercase; tracking: widest; margin-bottom: 1rem; }
+        .auth-btn:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(220, 38, 38, 0.7); }
+
         .active-btn { background-color: #dc2626 !important; box-shadow: 0 0 10px #ff0000; }
         
         /* PULSING LOGIN BUTTON */
@@ -87,7 +92,6 @@
     </nav>
 
     <main class="p-8 max-w-7xl mx-auto">
-        <!-- USER VAULT SECTION -->
         <section id="user-vault" class="user-shelf">
             <h2 class="text-xl font-bold mb-6 text-white uppercase tracking-widest italic border-l-4 border-red-600 pl-4">My Rizz Vault</h2>
             <div id="fav-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8"></div>
@@ -100,15 +104,18 @@
         <div id="movie-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6"></div>
     </main>
 
-    <!-- AUTH MODAL -->
+    <!-- AUTH MODAL (FIXED FORMAT) -->
     <div id="auth-overlay">
         <div class="bg-zinc-900 p-8 rounded-2xl border border-red-600 w-full max-w-md shadow-2xl">
-            <h2 id="auth-title" class="text-3xl font-black italic text-red-600 mb-6 uppercase">Login to Vault</h2>
+            <h2 id="auth-title" class="text-3xl font-black italic text-red-600 mb-6 uppercase text-center tracking-tighter">Login to start rizzing</h2>
             <input type="text" id="auth-user" placeholder="Username" class="auth-input">
             <input type="password" id="auth-pass" placeholder="Password" class="auth-input">
-            <button onclick="handleAuth()" id="auth-action-btn" class="auth-btn w-full py-4 rounded-xl font-black uppercase tracking-widest mb-4">Enter Vault</button>
-            <p class="text-center text-xs text-zinc-500"><button onclick="toggleAuthMode()" id="auth-toggle-btn" class="text-red-500 underline">Register</button></p>
-            <button onclick="closeAuth()" class="w-full mt-6 text-zinc-600 text-xs uppercase font-bold">Cancel</button>
+            <button onclick="handleAuth()" id="auth-action-btn" class="auth-btn w-full py-4 text-white">Enter Vault</button>
+            <p class="text-center text-xs text-zinc-500">
+                <span id="auth-toggle-text">Don't have an account?</span> 
+                <button onclick="toggleAuthMode()" id="auth-toggle-btn" class="text-red-500 underline ml-1">Register</button>
+            </p>
+            <button onclick="closeAuth()" class="w-full mt-6 text-zinc-600 text-xs uppercase font-bold hover:text-white transition">Cancel</button>
         </div>
     </div>
 
@@ -166,7 +173,11 @@
 
         function openAuth() { document.getElementById('auth-overlay').style.display = 'flex'; }
         function closeAuth() { document.getElementById('auth-overlay').style.display = 'none'; }
-        function toggleAuthMode() { isRegistering = !isRegistering; document.getElementById('auth-title').innerText = isRegistering ? "Create Vault" : "Login to Vault"; }
+        function toggleAuthMode() { 
+            isRegistering = !isRegistering; 
+            document.getElementById('auth-title').innerText = isRegistering ? "Register Account" : "Login to start rizzing"; 
+            document.getElementById('auth-action-btn').innerText = isRegistering ? "Create Vault" : "Enter Vault";
+        }
         
         async function handleAuth() {
             const u = document.getElementById('auth-user').value.toLowerCase();
