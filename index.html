@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RizzKing Movies | Absolute Cinema</title>
     
-    <!-- SEO & META TAGS -->
     <meta property="og:title" content="RizzKing Movies | Absolute Cinema">
     <meta property="og:description" content="No ads. No BS. Just pure cinema.">
     <meta name="theme-color" content="#dc2626">
@@ -20,27 +19,29 @@
             overflow-x: hidden;
         }
 
-        /* BACKGROUND GLOW */
         #rizz-glow {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 50% -20%, rgba(220, 38, 38, 0.15), transparent 70%);
             z-index: -1; pointer-events: none;
         }
 
+        /* SLIDING TAB STYLES */
+        .tab-container { position: relative; background: #111; padding: 4px; border-radius: 12px; display: flex; border: 1px solid #27272a; }
+        .tab-slider { position: absolute; top: 4px; left: 4px; height: calc(100% - 8px); width: calc(50% - 4px); background: #dc2626; border-radius: 8px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 0; box-shadow: 0 0 15px rgba(220, 38, 38, 0.4); }
+        .nav-tab { position: relative; z-index: 1; width: 100px; padding: 8px 0; text-align: center; font-weight: 900; text-transform: uppercase; font-size: 12px; transition: color 0.3s; cursor: pointer; }
+        .nav-tab.inactive { color: #52525b; }
+        .nav-tab.active { color: white; }
+
         .movie-card { transition: all 0.3s ease; cursor: inherit; border: 1px solid #1a1a1a; background: #0a0a0a; position: relative; }
         .movie-card:hover { transform: translateY(-10px); filter: drop-shadow(0 0 15px rgba(220, 38, 38, 0.5)); border-color: #ff0000; }
         
         #player-overlay, #auth-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; flex-direction: column; overflow-y: auto; }
-        
-        /* AUTH MODAL FORMATTING */
         #auth-overlay { justify-content: center; align-items: center; background: rgba(0,0,0,0.9); backdrop-blur: 10px; }
+        
         .auth-input { width: 100%; margin-bottom: 15px; background: #111; color: white; border: 1px solid #dc2626; padding: 10px; border-radius: 8px; outline: none; }
         .auth-btn { background: linear-gradient(45deg, #dc2626, #7f1d1d); box-shadow: 0 0 15px rgba(220, 38, 38, 0.4); width: 100%; py: 1rem; border-radius: 12px; font-weight: 900; text-transform: uppercase; tracking: widest; margin-bottom: 1rem; }
-        .auth-btn:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(220, 38, 38, 0.7); }
-
         .active-btn { background-color: #dc2626 !important; box-shadow: 0 0 10px #ff0000; }
         
-        /* PULSING LOGIN BUTTON */
         .rizz-login-btn { 
             background: #dc2626; color: white; font-weight: 900; text-transform: uppercase; 
             border-radius: 8px; padding: 8px 16px; transition: all 0.3s; 
@@ -48,7 +49,6 @@
         }
         @keyframes loginPulse { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); } 70% { box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
 
-        /* SKELETON LOADERS */
         .skeleton { background: #1a1a1a; position: relative; overflow: hidden; border-radius: 1rem; height: 300px; }
         .skeleton::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); animation: loading 1.5s infinite; }
         @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
@@ -62,8 +62,10 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
         .resume-badge { position: absolute; bottom: 8px; left: 8px; background: #dc2626; color: white; font-size: 8px; font-weight: 900; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; z-index: 10; }
-
-        .tv-select { background: #111; color: #ff0000; border: 1px solid #dc2626; padding: 5px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 900; outline: none; }
+        
+        /* DROPDOWN & TV UI */
+        .tv-select, .network-select { background: #111; color: #ff0000; border: 1px solid #dc2626; padding: 5px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 900; outline: none; transition: 0.3s; }
+        .network-select:hover { border-color: #ff5555; box-shadow: 0 0 10px #ff0000; }
     </style>
 </head>
 <body>
@@ -79,9 +81,10 @@
             <button id="login-nav-btn" onclick="openAuth()" class="rizz-login-btn">Login / Register</button>
         </div>
         
-        <div class="flex gap-4">
-            <button id="movie-tab" onclick="setTab('movie')" class="font-bold text-red-600 transition uppercase text-sm px-4 py-2 rounded-lg">Movies</button>
-            <button id="tv-tab" onclick="setTab('tv')" class="font-bold hover:text-red-600 transition uppercase text-sm px-4 py-2 rounded-lg">TV Shows</button>
+        <div class="tab-container">
+            <div id="tab-slider" class="tab-slider"></div>
+            <div id="movie-tab" onclick="setTab('movie')" class="nav-tab active">Movies</div>
+            <div id="tv-tab" onclick="setTab('tv')" class="nav-tab inactive">TV Shows</div>
         </div>
 
         <div class="flex flex-col items-center md:items-end w-full md:w-96 gap-2">
@@ -99,12 +102,27 @@
             <div id="watched-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 opacity-70"></div>
         </section>
 
-        <h2 id="grid-title" class="text-xl font-bold mb-4 text-zinc-500 uppercase tracking-widest italic border-l-4 border-red-600 pl-4">Trending Movies</h2>
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+            <h2 id="grid-title" class="text-xl font-bold text-zinc-500 uppercase tracking-widest italic border-l-4 border-red-600 pl-4">Trending Movies</h2>
+            
+            <div class="flex items-center gap-3">
+                <span class="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Network:</span>
+                <select id="network-select" onchange="setNetwork(this.value)" class="network-select">
+                    <option value="">ALL NETWORKS</option>
+                    <option value="8">NETFLIX</option>
+                    <option value="337">DISNEY+</option>
+                    <option value="15">HULU</option>
+                    <option value="1899">HBO MAX</option>
+                    <option value="9">PRIME VIDEO</option>
+                    <option value="350">APPLE TV+</option>
+                </select>
+            </div>
+        </div>
+
         <div id="genre-container" class="flex gap-3 overflow-x-auto no-scrollbar mb-8 pb-2"></div>
         <div id="movie-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6"></div>
     </main>
 
-    <!-- AUTH MODAL (FIXED FORMAT) -->
     <div id="auth-overlay">
         <div class="bg-zinc-900 p-8 rounded-2xl border border-red-600 w-full max-w-md shadow-2xl">
             <h2 id="auth-title" class="text-3xl font-black italic text-red-600 mb-6 uppercase text-center tracking-tighter">Login to start rizzing</h2>
@@ -112,14 +130,12 @@
             <input type="password" id="auth-pass" placeholder="Password" class="auth-input">
             <button onclick="handleAuth()" id="auth-action-btn" class="auth-btn w-full py-4 text-white">Enter Vault</button>
             <p class="text-center text-xs text-zinc-500">
-                <span id="auth-toggle-text">Don't have an account?</span> 
-                <button onclick="toggleAuthMode()" id="auth-toggle-btn" class="text-red-500 underline ml-1">Register</button>
+                Don't have an account? <button onclick="toggleAuthMode()" id="auth-toggle-btn" class="text-red-500 underline ml-1">Register</button>
             </p>
-            <button onclick="closeAuth()" class="w-full mt-6 text-zinc-600 text-xs uppercase font-bold hover:text-white transition">Cancel</button>
+            <button onclick="closeAuth()" class="w-full mt-6 text-zinc-600 text-xs uppercase font-bold hover:text-white">Cancel</button>
         </div>
     </div>
 
-    <!-- PLAYER OVERLAY -->
     <div id="player-overlay">
         <div class="flex flex-col h-full">
             <div class="p-4 bg-zinc-900 flex justify-between items-center border-b border-zinc-800 flex-wrap gap-4">
@@ -154,10 +170,9 @@
         const grid = document.getElementById('movie-grid');
         const qInput = document.getElementById('search-input');
         const genreBox = document.getElementById('genre-container');
-        let mode = 'movie', curID = '', curS = 1, curE = 1;
+        let mode = 'movie', curID = '', curS = 1, curE = 1, networkID = '';
 
         let users = {}; let currentUser = null; let isRegistering = false;
-
         const genres = {
             movie: [{id:28,name:"Action"},{id:35,name:"Comedy"},{id:27,name:"Horror"},{id:878,name:"Sci-Fi"},{id:16,name:"Animation"},{id:10749,name:"Romance"},{id:53,name:"Thriller"},{id:18,name:"Drama"}],
             tv: [{id:10759,name:"Action & Adventure"},{id:35,name:"Comedy"},{id:18,name:"Drama"},{id:9648,name:"Mystery"},{id:10765,name:"Sci-Fi & Fantasy"},{id:16,name:"Animation"}]
@@ -237,9 +252,22 @@
             syncToDB('favorites'); updateUserUI();
         }
 
-        function setTab(t) { mode = t; qInput.value = ""; renderGenres(); fetchData(); }
+        // NAVIGATION & NETWORK FILTERS
+        function setTab(t) { 
+            mode = t; 
+            const slider = document.getElementById('tab-slider');
+            if (t === 'movie') { slider.style.transform = 'translateX(0%)'; document.getElementById('movie-tab').className = 'nav-tab active'; document.getElementById('tv-tab').className = 'nav-tab inactive'; } 
+            else { slider.style.transform = 'translateX(100%)'; document.getElementById('tv-tab').className = 'nav-tab active'; document.getElementById('movie-tab').className = 'nav-tab inactive'; }
+            qInput.value = ""; renderGenres(); fetchData(); 
+        }
+
+        function setNetwork(val) {
+            networkID = val;
+            fetchData();
+        }
+
         function renderGenres() {
-            genreBox.innerHTML = `<button onclick="fetchData()" class="genre-pill active">All</button>` + 
+            genreBox.innerHTML = `<button onclick="fetchByGenre('', 'ALL')" class="genre-pill active">All</button>` + 
             genres[mode].map(g => `<button onclick="fetchByGenre(${g.id}, '${g.name}')" class="genre-pill">${g.name}</button>`).join('');
         }
 
@@ -247,7 +275,12 @@
             document.querySelectorAll('.genre-pill').forEach(btn => btn.classList.remove('active'));
             event.currentTarget.classList.add('active');
             grid.innerHTML = Array(12).fill('<div class="skeleton"></div>').join('');
-            const res = await fetch(`https://api.themoviedb.org/3/discover/${mode}?api_key=${KEY}&with_genres=${id}&sort_by=popularity.desc`);
+            
+            let url = `https://api.themoviedb.org/3/discover/${mode}?api_key=${KEY}&sort_by=popularity.desc`;
+            if(id) url += `&with_genres=${id}`;
+            if(networkID) url += `&with_watch_providers=${networkID}&watch_region=US`;
+            
+            const res = await fetch(url);
             const data = await res.json();
             document.getElementById('grid-title').innerText = `${name.toUpperCase()} ${mode.toUpperCase()}S`;
             renderGrid(data.results);
@@ -255,11 +288,19 @@
 
         async function fetchData(q = "") {
             grid.innerHTML = Array(12).fill('<div class="skeleton"></div>').join('');
-            const path = q ? `search/${mode}` : `trending/${mode}/day`;
-            const param = q ? `&query=${encodeURIComponent(q)}` : '';
-            const res = await fetch(`https://api.themoviedb.org/3/${path}?api_key=${KEY}${param}`);
+            let url;
+            if(q) {
+                url = `https://api.themoviedb.org/3/search/${mode}?api_key=${KEY}&query=${encodeURIComponent(q)}`;
+            } else if(networkID) {
+                url = `https://api.themoviedb.org/3/discover/${mode}?api_key=${KEY}&with_watch_providers=${networkID}&watch_region=US&sort_by=popularity.desc`;
+            } else {
+                url = `https://api.themoviedb.org/3/trending/${mode}/day?api_key=${KEY}`;
+            }
+            
+            const res = await fetch(url);
             const data = await res.json();
-            document.getElementById('grid-title').innerText = q ? `RESULTS: ${q.toUpperCase()}` : `TRENDING ${mode.toUpperCase()}S`;
+            const networkName = document.getElementById('network-select').options[document.getElementById('network-select').selectedIndex].text;
+            document.getElementById('grid-title').innerText = q ? `RESULTS: ${q.toUpperCase()}` : (networkID ? `${networkName} ${mode.toUpperCase()}S` : `TRENDING ${mode.toUpperCase()}S`);
             renderGrid(data.results);
         }
 
@@ -267,8 +308,7 @@
             grid.innerHTML = results.map(m => {
                 let isFav = currentUser && users[currentUser].favorites.some(f => f.id == m.id);
                 const title = (m.title || m.name).replace(/'/g, "");
-                return `
-                <div class="movie-card rounded-2xl overflow-hidden shadow-xl" onclick="openP('${m.id}', '${title}', '${m.poster_path}')">
+                return `<div class="movie-card rounded-2xl overflow-hidden shadow-xl" onclick="openP('${m.id}', '${title}', '${m.poster_path}')">
                     <button onclick="toggleFav(event, '${m.id}', '${title}', '${m.poster_path}')" class="fav-btn ${isFav ? 'is-fav' : ''}">❤</button>
                     <img src="${m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : 'https://via.placeholder.com/500x750?text=No+Poster'}" class="w-full">
                     <div class="p-4 bg-zinc-900/50 text-[10px] font-black uppercase truncate">${m.title || m.name}</div>
@@ -294,10 +334,7 @@
         async function fetchSimilar(id) {
             const res = await fetch(`https://api.themoviedb.org/3/${mode}/${id}/recommendations?api_key=${KEY}`);
             const data = await res.json();
-            document.getElementById('similar-grid').innerHTML = data.results.slice(0, 8).map(m => `
-                <div class="movie-card rounded-lg overflow-hidden" onclick="openP('${m.id}', '${(m.title || m.name).replace(/'/g, "")}', '${m.poster_path}')">
-                    <img src="https://image.tmdb.org/t/p/w300${m.poster_path}" class="w-full">
-                </div>`).join('');
+            document.getElementById('similar-grid').innerHTML = data.results.slice(0, 8).map(m => `<div class="movie-card rounded-lg overflow-hidden" onclick="openP('${m.id}', '${(m.title || m.name).replace(/'/g, "")}', '${m.poster_path}')"><img src="https://image.tmdb.org/t/p/w300${m.poster_path}" class="w-full"></div>`).join('');
         }
 
         async function loadTVData(id) {
