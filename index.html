@@ -11,123 +11,123 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         
         html, body { 
-            background-color: #050505; 
+            background-color: #020202; 
             color: white; 
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="red" stroke="white" stroke-width="1"><path d="M7 2l12 11.2-5.8.8 3.3 7.2-2.2 1-3.3-7.2-4 3.8z"/></svg>'), auto;
             overflow-x: hidden;
+            letter-spacing: -0.02em;
         }
 
         #rizz-glow {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% -10%, rgba(220, 38, 38, 0.12), transparent 60%);
+            background: radial-gradient(circle at 50% -10%, rgba(220, 38, 38, 0.1), transparent 50%);
             z-index: -1; pointer-events: none;
         }
 
-        /* SLIDING TABS */
-        .tab-container { position: relative; background: #111; padding: 4px; border-radius: 12px; display: flex; border: 1px solid #27272a; width: 220px; }
-        .tab-slider { position: absolute; top: 4px; left: 4px; height: calc(100% - 8px); width: calc(50% - 4px); background: #dc2626; border-radius: 8px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 0; }
-        .nav-tab { position: relative; z-index: 1; flex: 1; padding: 8px 0; text-align: center; font-weight: 900; text-transform: uppercase; font-size: 11px; cursor: pointer; transition: 0.3s; }
-        .nav-tab.inactive { color: #52525b; }
+        nav { background: rgba(2, 2, 2, 0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
 
-        /* NETWORK BAR */
+        /* STREAMING NETWORK BAR */
         .network-chip {
-            flex: 0 0 auto; width: 100px; height: 50px; background: #111; border: 1px solid #27272a; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; transition: all 0.3s; grayscale: 100%; opacity: 0.6; cursor: pointer;
+            flex: 0 0 auto; width: 120px; height: 60px; background: #050505; 
+            border: 1.5px solid #dc2626; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; cursor: pointer;
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.1);
         }
-        .network-chip:hover, .network-chip.active { grayscale: 0; opacity: 1; border-color: #dc2626; background: #18181b; transform: scale(1.05); }
-        .network-chip img { max-width: 70%; max-height: 25px; object-contain: contain; }
+        .network-chip:hover, .network-chip.active { 
+            background: #0a0a0a; 
+            box-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
+            transform: translateY(-3px);
+            border-color: #ff0000;
+        }
+        .network-chip img { max-width: 60%; max-height: 24px; object-fit: contain; filter: brightness(1.2); }
+
+        /* SLIDING TABS */
+        .tab-container { position: relative; background: #0a0a0a; padding: 4px; border-radius: 14px; display: flex; border: 1px solid rgba(255,255,255,0.08); width: 200px; }
+        .tab-slider { position: absolute; top: 4px; left: 4px; height: calc(100% - 8px); width: calc(50% - 4px); background: #dc2626; border-radius: 10px; transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+        .nav-tab { position: relative; z-index: 1; flex: 1; padding: 6px 0; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 10px; cursor: pointer; color: #52525b; transition: 0.3s; }
+        .nav-tab.active { color: white; }
 
         /* MOVIE CARDS */
-        .movie-card { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid #1a1a1a; background: #0a0a0a; position: relative; border-radius: 16px; overflow: hidden; }
-        .movie-card:hover { transform: translateY(-8px); border-color: #ff0000; box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(220, 38, 38, 0.2); }
+        .movie-card { transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); background: #0a0a0a; position: relative; border-radius: 20px; overflow: hidden; border: 1px solid transparent; }
+        .movie-card:hover { transform: scale(1.03) translateY(-5px); border-color: #dc2626; box-shadow: 0 15px 35px rgba(0,0,0,0.9); }
         
-        #player-overlay, #auth-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; flex-direction: column; overflow-y: auto; }
-        #auth-overlay { justify-content: center; align-items: center; background: rgba(0,0,0,0.95); backdrop-blur: 20px; }
-        
-        .active-btn { background-color: #dc2626 !important; box-shadow: 0 0 15px #ff0000; }
-        
-        .rizz-login-btn { background: #dc2626; color: white; font-weight: 900; text-transform: uppercase; border-radius: 8px; padding: 10px 20px; transition: all 0.3s; animation: loginPulse 2s infinite; font-size: 11px; }
-        @keyframes loginPulse { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
+        /* GENRE PILLS WITH BORDERS */
+        .genre-pill { 
+            white-space: nowrap; transition: 0.3s; border-radius: 12px; font-size: 10px; font-weight: 800; 
+            text-transform: uppercase; color: #71717a; padding: 8px 16px; 
+            background: #0a0a0a; border: 1px solid #1f1f1f; 
+        }
+        .genre-pill:hover { border-color: #52525b; color: #a1a1aa; }
+        .genre-pill.active { color: white; background: #dc2626; border-color: #dc2626; box-shadow: 0 0 15px rgba(220, 38, 38, 0.3); }
 
-        .skeleton { background: #111; position: relative; overflow: hidden; border-radius: 1rem; height: 280px; }
-        .skeleton::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent); animation: loading 1.5s infinite; }
-        @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .section-title { font-size: 0.85rem; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.15em; display: flex; align-items: center; gap: 10px; opacity: 0.6; }
+        .section-title b { color: #dc2626; font-weight: 900; opacity: 1; }
 
-        .fav-btn { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.8); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; z-index: 20; color: white; transition: 0.3s; font-size: 14px; }
-        .is-fav { color: #ff0000 !important; transform: scale(1.1); }
-        
+        /* AUTH MODAL */
+        #auth-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(25px); z-index: 2000; justify-content: center; align-items: center; }
+        .auth-input { width: 100%; margin-bottom: 12px; background: #0a0a0a; color: white; border: 1px solid #1f1f1f; padding: 14px; border-radius: 14px; outline: none; transition: 0.3s; text-align: center; }
+        .auth-input:focus { border-color: #dc2626; }
+        .auth-btn { background: #dc2626; width: 100%; padding: 14px; border-radius: 14px; font-weight: 800; text-transform: uppercase; color: white; transition: 0.3s; }
+        .auth-btn:hover { background: #ff0000; transform: scale(1.02); }
+
+        #player-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        .section-title { font-size: 1.25rem; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
-        .section-title::before { content: ''; width: 4px; height: 24px; background: #dc2626; border-radius: 2px; }
     </style>
 </head>
 <body>
 
     <div id="rizz-glow"></div>
 
-    <nav class="px-8 py-4 flex flex-col lg:flex-row justify-between items-center gap-6 border-b border-zinc-900 bg-black/80 sticky top-0 z-50 backdrop-blur-xl">
-        <div class="flex items-center gap-8">
-            <h1 class="text-3xl font-black italic tracking-tighter text-red-600 cursor-pointer" onclick="location.reload()">RIZZKING <span class="text-white">MOVIES</span></h1>
+    <nav class="px-8 py-4 flex flex-col lg:flex-row justify-between items-center gap-6 sticky top-0 z-50">
+        <div class="flex items-center gap-10">
+            <h1 class="text-2xl font-black italic tracking-tighter text-red-600 cursor-pointer" onclick="location.reload()">RIZZKING</h1>
             
-            <div class="tab-container hidden md:flex">
+            <div class="tab-container">
                 <div id="tab-slider" class="tab-slider"></div>
                 <div id="movie-tab" onclick="setTab('movie')" class="nav-tab active">Movies</div>
-                <div id="tv-tab" onclick="setTab('tv')" class="nav-tab inactive">TV Shows</div>
+                <div id="tv-tab" onclick="setTab('tv')" class="nav-tab inactive">Series</div>
             </div>
         </div>
 
         <div class="flex items-center gap-4 w-full lg:w-auto">
-            <div class="relative w-full lg:w-96">
-                <input type="text" id="search-input" placeholder="Search absolute cinema..." 
-                       class="w-full bg-zinc-900/50 border border-zinc-800 px-6 py-3 rounded-2xl focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition text-sm">
-            </div>
+            <input type="text" id="search-input" placeholder="Search absolute cinema..." 
+                   class="w-full lg:w-80 bg-[#0a0a0a] border border-[#1f1f1f] px-6 py-2.5 rounded-full focus:outline-none focus:border-red-600 transition text-xs font-semibold">
             
             <div id="user-display" class="hidden flex items-center gap-3">
-                <span id="active-username" class="text-[10px] font-black uppercase text-zinc-500">User</span>
-                <button onclick="logout()" class="text-red-600 text-[10px] font-black uppercase hover:underline">Logout</button>
+                <button onclick="logout()" class="text-zinc-600 text-[10px] font-black uppercase hover:text-red-600">Logout</button>
             </div>
-            <button id="login-nav-btn" onclick="openAuth()" class="rizz-login-btn">Start Rizzing</button>
+            <button id="login-nav-btn" onclick="openAuth()" class="bg-white text-black px-6 py-2 rounded-full text-[10px] font-black uppercase hover:bg-red-600 hover:text-white transition-all">Start Rizzing</button>
         </div>
     </nav>
 
-    <main class="p-8 max-w-[1600px] mx-auto space-y-16">
+    <main class="p-8 max-w-[1500px] mx-auto space-y-16">
         
-        <section id="user-vault" class="hidden">
-            <h2 class="section-title">My Rizz Vault</h2>
-            <div id="fav-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6"></div>
+        <section>
+            <h2 class="section-title">New <b>Arrivals</b></h2>
+            <div id="new-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6 mt-6"></div>
         </section>
 
-        <section id="new-releases">
-            <h2 class="section-title">New Arrivals</h2>
-            <div id="new-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-                <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+        <section>
+            <h2 class="section-title">Studio <b>Networks</b></h2>
+            <div class="flex gap-4 overflow-x-auto no-scrollbar py-6">
+                <div class="network-chip active" onclick="setNetwork('', this)"><span class="text-[9px] font-black uppercase">Standard</span></div>
+                <div class="network-chip" onclick="setNetwork('8', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg"></div>
+                <div class="network-chip" onclick="setNetwork('337', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg"></div>
+                <div class="network-chip" onclick="setNetwork('1899', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/1/17/HBO_Max_Logo.svg"></div>
+                <div class="network-chip" onclick="setNetwork('15', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Hulu_Logo.svg"></div>
+                <div class="network-chip" onclick="setNetwork('9', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg"></div>
+                <div class="network-chip" onclick="setNetwork('350', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg"></div>
             </div>
         </section>
 
-        <section id="network-section">
-            <h2 class="section-title">Browse by Network</h2>
-            <div class="flex gap-4 overflow-x-auto no-scrollbar pb-4">
-                <div class="network-chip active" onclick="setNetwork('', this)"><span class="text-[10px] font-black uppercase">All</span></div>
-                <div class="network-chip" onclick="setNetwork('8', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix"></div>
-                <div class="network-chip" onclick="setNetwork('337', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg" alt="Disney+"></div>
-                <div class="network-chip" onclick="setNetwork('1899', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/1/17/HBO_Max_Logo.svg" alt="HBO Max"></div>
-                <div class="network-chip" onclick="setNetwork('15', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Hulu_Logo.svg" alt="Hulu"></div>
-                <div class="network-chip" onclick="setNetwork('9', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg" alt="Prime Video"></div>
-                <div class="network-chip" onclick="setNetwork('350', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg" alt="Apple TV+"></div>
-                <div class="network-chip" onclick="setNetwork('213', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/Paramount%2B_logo.svg" alt="Paramount+"></div>
-            </div>
-        </section>
-
-        <section id="main-browsing">
-            <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
-                <h2 id="grid-title" class="section-title mb-0">Trending Now</h2>
-                <div id="genre-container" class="flex gap-2 overflow-x-auto no-scrollbar max-w-full"></div>
+        <section>
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6">
+                <h2 id="grid-title" class="section-title">Trending <b>Now</b></h2>
+                <div id="genre-container" class="flex gap-2 overflow-x-auto no-scrollbar pb-2"></div>
             </div>
             <div id="movie-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6"></div>
         </section>
@@ -135,42 +135,38 @@
     </main>
 
     <div id="auth-overlay">
-        <div class="bg-zinc-900 p-10 rounded-3xl border border-red-600/30 w-full max-w-md shadow-2xl">
-            <h2 id="auth-title" class="text-3xl font-black italic text-red-600 mb-8 uppercase text-center tracking-tighter">Login to start rizzing</h2>
+        <div class="w-full max-w-xs">
+            <h2 id="auth-title" class="text-4xl font-black italic text-red-600 mb-8 uppercase tracking-tighter text-center">Login to start rizzing</h2>
             <input type="text" id="auth-user" placeholder="Username" class="auth-input">
             <input type="password" id="auth-pass" placeholder="Password" class="auth-input">
-            <button onclick="handleAuth()" id="auth-action-btn" class="auth-btn py-4 text-white">Enter Vault</button>
-            <p class="text-center text-xs text-zinc-500 mt-4">
-                Don't have an account? <button onclick="toggleAuthMode()" id="auth-toggle-btn" class="text-red-500 font-bold ml-1">Register</button>
-            </p>
-            <button onclick="closeAuth()" class="w-full mt-8 text-zinc-600 text-[10px] uppercase font-black hover:text-white transition">Cancel</button>
+            <button onclick="handleAuth()" id="auth-action-btn" class="auth-btn">Enter Vault</button>
+            <button onclick="toggleAuthMode()" id="auth-toggle-btn" class="w-full mt-6 text-[10px] font-bold text-zinc-500 uppercase hover:text-white transition">Register Account</button>
+            <button onclick="closeAuth()" class="w-full mt-10 text-[9px] text-zinc-700 uppercase font-black hover:text-red-600">Cancel</button>
         </div>
     </div>
 
     <div id="player-overlay">
         <div class="flex flex-col h-full">
-            <div class="p-6 bg-zinc-900/90 backdrop-blur-md flex justify-between items-center border-b border-zinc-800">
-                <div class="flex items-center gap-8">
-                    <h3 id="playing-title" class="text-2xl font-black text-white uppercase italic truncate max-w-[300px]">Loading...</h3>
-                    <div id="tv-ui" style="display: none;" class="flex gap-3">
-                        <select id="s-select" onchange="updateS()" class="tv-select"></select>
-                        <select id="e-select" onchange="updateE()" class="tv-select"></select>
-                    </div>
-                </div>
+            <div class="p-6 flex justify-between items-center border-b border-white/5">
+                <h3 id="playing-title" class="text-xl font-black uppercase italic truncate max-w-[40%]">Loading...</h3>
                 <div class="flex items-center gap-4">
-                    <div id="server-panel" class="flex gap-2 bg-black p-1 rounded-xl border border-zinc-800">
-                        <button id="sv1" onclick="serv(1)" class="px-4 py-2 rounded-lg text-[10px] font-black active-btn transition">SERVER 1</button>
-                        <button id="sv2" onclick="serv(2)" class="px-4 py-2 rounded-lg text-[10px] font-black transition">SERVER 2</button>
-                        <button id="sv3" onclick="serv(3)" class="px-4 py-2 rounded-lg text-[10px] font-black transition">VIDEASY 4K</button>
+                    <div class="flex gap-2 bg-[#0a0a0a] p-1 rounded-full border border-white/10">
+                        <button id="sv1" onclick="serv(1)" class="px-5 py-1.5 rounded-full text-[9px] font-black transition">SERVER 1</button>
+                        <button id="sv2" onclick="serv(2)" class="px-5 py-1.5 rounded-full text-[9px] font-black transition">SERVER 2</button>
+                        <button id="sv3" onclick="serv(3)" class="px-5 py-1.5 rounded-full text-[9px] font-black transition">VIDEASY 4K</button>
                     </div>
-                    <button onclick="closeP()" class="bg-red-600 w-10 h-10 rounded-full font-black text-xl flex items-center justify-center hover:bg-red-700 transition">×</button>
+                    <button onclick="closeP()" class="text-3xl font-light leading-none hover:text-red-600 transition">×</button>
                 </div>
             </div>
             <div class="flex-grow bg-black">
                 <iframe id="main-frame" src="" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
             </div>
-            <div id="extra-section" class="p-10 bg-zinc-950">
-                <h4 class="text-red-600 font-black italic uppercase tracking-widest mb-8">More Like This</h4>
+            <div id="tv-ui" style="display:none" class="p-4 bg-[#0a0a0a] flex gap-4 justify-center border-t border-white/5">
+                <select id="s-select" onchange="updateS()" class="bg-black text-red-600 border border-red-600/30 px-4 py-2 rounded-lg text-xs font-bold outline-none"></select>
+                <select id="e-select" onchange="updateE()" class="bg-black text-red-600 border border-red-600/30 px-4 py-2 rounded-lg text-xs font-bold outline-none"></select>
+            </div>
+            <div class="p-10 bg-[#020202] overflow-y-auto">
+                <h4 class="text-red-600 font-black italic uppercase tracking-widest text-[10px] mb-6">Similar Selection</h4>
                 <div id="similar-grid" class="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-4"></div>
             </div>
         </div>
@@ -187,8 +183,8 @@
         let users = {}; let currentUser = null; let isRegistering = false;
 
         const genres = {
-            movie: [{id:28,name:"Action"},{id:35,name:"Comedy"},{id:27,name:"Horror"},{id:878,name:"Sci-Fi"},{id:16,name:"Animation"},{id:10749,name:"Romance"},{id:18,name:"Drama"}],
-            tv: [{id:10759,name:"Action"},{id:35,name:"Comedy"},{id:18,name:"Drama"},{id:9648,name:"Mystery"},{id:10765,name:"Sci-Fi"},{id:16,name:"Animation"}]
+            movie: [{id:28,name:"Action"},{id:35,name:"Comedy"},{id:27,name:"Horror"},{id:878,name:"Sci-Fi"},{id:16,name:"Animation"},{id:10749,name:"Romance"},{id:53,name:"Thriller"}],
+            tv: [{id:10759,name:"Action"},{id:35,name:"Comedy"},{id:18,name:"Drama"},{id:10765,name:"Sci-Fi"},{id:16,name:"Animation"}]
         };
 
         const savedSession = sessionStorage.getItem('rizzSession');
@@ -199,7 +195,7 @@
             setTimeout(updateUserUI, 100);
         }
 
-        // --- AUTH & DB ---
+        // --- AUTH ---
         function openAuth() { document.getElementById('auth-overlay').style.display = 'flex'; }
         function closeAuth() { document.getElementById('auth-overlay').style.display = 'none'; }
         function toggleAuthMode() { 
@@ -207,6 +203,7 @@
             document.getElementById('auth-title').innerText = isRegistering ? "Register Account" : "Login to start rizzing"; 
             document.getElementById('auth-action-btn').innerText = isRegistering ? "Create Vault" : "Enter Vault";
         }
+        
         async function handleAuth() {
             const u = document.getElementById('auth-user').value.toLowerCase();
             const p = document.getElementById('auth-pass').value;
@@ -215,14 +212,9 @@
             const res = await fetch('auth.php', { method: 'POST', body: formData });
             const data = await res.json();
             if(data.success) {
-                if(isRegistering) { alert("Registered! Login now."); toggleAuthMode(); } 
+                if(isRegistering) { alert("Registered! Log in."); toggleAuthMode(); } 
                 else { currentUser = data.username; users[currentUser] = { favorites: data.favorites, watched: data.watched }; sessionStorage.setItem('rizzSession', JSON.stringify(data)); updateUserUI(); closeAuth(); }
             } else { alert(data.error); }
-        }
-        async function syncToDB(type) {
-            if (!currentUser) return;
-            const formData = new FormData(); formData.append('username', currentUser); formData.append('type', type); formData.append('data', JSON.stringify(users[currentUser][type]));
-            await fetch('sync.php', { method: 'POST', body: formData });
         }
         function logout() { sessionStorage.removeItem('rizzSession'); location.reload(); }
 
@@ -230,38 +222,16 @@
             if(currentUser) {
                 document.getElementById('login-nav-btn').style.display = 'none';
                 document.getElementById('user-display').classList.remove('hidden');
-                document.getElementById('active-username').innerText = currentUser;
-                document.getElementById('user-vault').classList.remove('hidden');
-                renderUserVault();
             }
             fetchData();
         }
 
-        function renderUserVault() {
-            const data = users[currentUser];
-            document.getElementById('fav-grid').innerHTML = data.favorites.map(m => createCardHTML(m, true)).join('');
-        }
-
-        function toggleFav(e, id, title, poster) {
-            e.stopPropagation();
-            if(!currentUser) return openAuth();
-            const favs = users[currentUser].favorites;
-            const idx = favs.findIndex(f => f.id === id);
-            if(idx > -1) favs.splice(idx, 1);
-            else favs.push({id, title, poster});
-            syncToDB('favorites'); updateUserUI();
-        }
-
-        // --- NAVIGATION ---
+        // --- CONTENT ---
         function setTab(t) { 
             mode = t; 
-            const slider = document.getElementById('tab-slider');
-            slider.style.transform = t === 'movie' ? 'translateX(0%)' : 'translateX(100%)';
+            document.getElementById('tab-slider').style.transform = t === 'movie' ? 'translateX(0%)' : 'translateX(100%)';
             document.getElementById('movie-tab').className = `nav-tab ${t==='movie'?'active':'inactive'}`;
             document.getElementById('tv-tab').className = `nav-tab ${t==='tv'?'active':'inactive'}`;
-            qInput.value = ""; networkID = '';
-            document.querySelectorAll('.network-chip').forEach(c => c.classList.remove('active'));
-            document.querySelector('.network-chip').classList.add('active');
             renderGenres(); fetchData(); fetchNewReleases();
         }
 
@@ -277,51 +247,41 @@
             genres[mode].map(g => `<button onclick="fetchByGenre(${g.id}, '${g.name}')" class="genre-pill">${g.name}</button>`).join('');
         }
 
-        // --- DATA FETCHING ---
         async function fetchNewReleases() {
-            newGrid.innerHTML = Array(6).fill('<div class="skeleton"></div>').join('');
             const path = mode === 'movie' ? 'movie/now_playing' : 'tv/on_the_air';
             const res = await fetch(`https://api.themoviedb.org/3/${path}?api_key=${KEY}`);
             const data = await res.json();
             newGrid.innerHTML = data.results.slice(0, 6).map(m => createCardHTML(m)).join('');
         }
 
-        async function fetchByGenre(id, name) {
-            document.querySelectorAll('.genre-pill').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            grid.innerHTML = Array(12).fill('<div class="skeleton"></div>').join('');
-            let url = `https://api.themoviedb.org/3/discover/${mode}?api_key=${KEY}&sort_by=popularity.desc&with_genres=${id}`;
-            if(networkID) url += `&with_watch_providers=${networkID}&watch_region=US`;
-            const res = await fetch(url);
-            const data = await res.json();
-            renderGrid(data.results);
-        }
-
         async function fetchData(q = "") {
-            grid.innerHTML = Array(12).fill('<div class="skeleton"></div>').join('');
             let url = q ? `https://api.themoviedb.org/3/search/${mode}?api_key=${KEY}&query=${encodeURIComponent(q)}` :
                       networkID ? `https://api.themoviedb.org/3/discover/${mode}?api_key=${KEY}&with_watch_providers=${networkID}&watch_region=US&sort_by=popularity.desc` :
                       `https://api.themoviedb.org/3/trending/${mode}/day?api_key=${KEY}`;
             const res = await fetch(url);
             const data = await res.json();
-            renderGrid(data.results);
+            grid.innerHTML = data.results.map(m => createCardHTML(m)).join('');
         }
 
-        function renderGrid(results) {
-            grid.innerHTML = results.map(m => createCardHTML(m)).join('');
+        async function fetchByGenre(id, name) {
+            document.querySelectorAll('.genre-pill').forEach(btn => btn.classList.remove('active'));
+            if(event) event.currentTarget.classList.add('active');
+            let url = `https://api.themoviedb.org/3/discover/${mode}?api_key=${KEY}&sort_by=popularity.desc`;
+            if(id) url += `&with_genres=${id}`;
+            if(networkID) url += `&with_watch_providers=${networkID}&watch_region=US`;
+            const res = await fetch(url);
+            const data = await res.json();
+            grid.innerHTML = data.results.map(m => createCardHTML(m)).join('');
         }
 
-        function createCardHTML(m, isVault = false) {
-            const id = m.id;
-            const title = (m.title || m.name).replace(/'/g, "");
+        function createCardHTML(m) {
             const poster = m.poster_path || m.poster;
-            const isFav = currentUser && users[currentUser].favorites.some(f => f.id == id);
+            if(!poster) return '';
             return `
-                <div class="movie-card" onclick="openP('${id}', '${title}', '${poster}')">
-                    <button onclick="toggleFav(event, '${id}', '${title}', '${poster}')" class="fav-btn ${isFav ? 'is-fav' : ''}">❤</button>
-                    <img src="https://image.tmdb.org/t/p/w500${poster}" class="w-full aspect-[2/3] object-cover" loading="lazy">
-                    <div class="p-4">
-                        <h3 class="font-black text-[10px] uppercase truncate">${title}</h3>
+                <div class="movie-card" onclick="openP('${m.id}', '${(m.title || m.name).replace(/'/g, "")}', '${poster}')">
+                    <img src="https://image.tmdb.org/t/p/w500${poster}" class="w-full aspect-[2/3] object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity p-4 flex flex-col justify-end">
+                        <h3 class="font-black text-[9px] uppercase tracking-wider">${m.title || m.name}</h3>
                     </div>
                 </div>`;
         }
@@ -330,27 +290,16 @@
         async function openP(id, title, poster) {
             curID = id; curS = 1; curE = 1;
             document.getElementById('playing-title').innerText = title;
-            if(currentUser) {
-                const history = users[currentUser].watched;
-                const idx = history.findIndex(h => h.id == id);
-                if(idx > -1) history.splice(idx, 1);
-                history.push({id, title, poster});
-                syncToDB('watched'); renderUserVault();
-            }
+            document.getElementById('player-overlay').style.display = 'flex';
             if (mode === 'tv') { document.getElementById('tv-ui').style.display = 'flex'; await loadTVData(id); } 
             else { document.getElementById('tv-ui').style.display = 'none'; }
             serv(1); fetchSimilar(id);
-            document.getElementById('player-overlay').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
         }
 
         async function fetchSimilar(id) {
             const res = await fetch(`https://api.themoviedb.org/3/${mode}/${id}/recommendations?api_key=${KEY}`);
             const data = await res.json();
-            document.getElementById('similar-grid').innerHTML = data.results.slice(0, 8).map(m => `
-                <div class="movie-card" onclick="openP('${m.id}', '${(m.title || m.name).replace(/'/g, "")}', '${m.poster_path}')">
-                    <img src="https://image.tmdb.org/t/p/w300${m.poster_path}" class="w-full">
-                </div>`).join('');
+            document.getElementById('similar-grid').innerHTML = data.results.slice(0, 8).map(m => createCardHTML(m)).join('');
         }
 
         async function loadTVData(id) {
@@ -372,8 +321,8 @@
 
         function serv(n) {
             const frame = document.getElementById('main-frame');
-            document.querySelectorAll('#server-panel button').forEach(btn => btn.classList.remove('active-btn'));
-            document.getElementById('sv'+n).classList.add('active-btn');
+            document.querySelectorAll('#server-panel button').forEach(btn => btn.classList.remove('active-btn', 'bg-red-600'));
+            document.getElementById('sv'+n).classList.add('active-btn', 'bg-red-600');
             const ep = document.getElementById('e-select').value || 1;
             const sea = document.getElementById('s-select').value || 1;
             const providers = [
@@ -384,16 +333,9 @@
             frame.src = providers[n-1];
         }
 
-        function closeP() { document.getElementById('player-overlay').style.display = 'none'; document.getElementById('main-frame').src = ''; document.body.style.overflow = 'auto'; }
+        function closeP() { document.getElementById('player-overlay').style.display = 'none'; document.getElementById('main-frame').src = ''; }
         qInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') fetchData(e.target.value); });
         
-        async function pickRandom() {
-            const res = await fetch(`https://api.themoviedb.org/3/discover/${mode}?api_key=${KEY}&sort_by=popularity.desc`);
-            const data = await res.json();
-            const m = data.results[Math.floor(Math.random() * data.results.length)];
-            openP(m.id, (m.title || m.name).replace(/'/g, ""), m.poster_path);
-        }
-
         renderGenres(); fetchData(); fetchNewReleases();
     </script>
 </body>
