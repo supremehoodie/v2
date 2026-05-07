@@ -2,226 +2,72 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RizzKing Movies | Absolute Cinema</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>rizzking movies | absolute cinema</title>
+    
+    <meta name="theme-color" content="#dc2626">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* GLOBAL RED CURSOR */
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        
         html, body { 
-            background-color: #050505; 
-            color: white; 
-            font-family: 'Inter', sans-serif;
+            background-color: #020202; color: white; 
+            font-family: 'Plus Jakarta Sans', sans-serif;
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="red" stroke="white" stroke-width="1"><path d="M7 2l12 11.2-5.8.8 3.3 7.2-2.2 1-3.3-7.2-4 3.8z"/></svg>'), auto;
+            overflow-x: hidden; letter-spacing: -0.02em;
         }
 
-        .movie-card { transition: all 0.3s ease; cursor: inherit; border: 1px solid #1a1a1a; background: #0a0a0a; }
-        .movie-card:hover { transform: translateY(-10px); filter: drop-shadow(0 0 15px rgba(220, 38, 38, 0.5)); border-color: #ff0000; }
-        
-        #player-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 1000; flex-direction: column; }
-        .active-btn { background-color: #dc2626 !important; box-shadow: 0 0 10px #ff0000; }
-        
-        /* ANTON HOVER EFFECT */
-        .anton-name { transition: all 0.4s ease; color: #ff0000; cursor: inherit; text-decoration: none; }
+        #rizz-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% -10%, rgba(220, 38, 38, 0.1), transparent 50%); z-index: -1; pointer-events: none; }
+
+        nav { background: rgba(2, 2, 2, 0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
+
+        /* LOGO ANIMATION */
+        .brand-logo {
+            white-space: nowrap; font-size: 1.5rem; font-weight: 900; font-style: italic;
+            letter-spacing: -0.05em; text-transform: lowercase;
+            background: linear-gradient(90deg, #dc2626 0%, #dc2626 50%, white 50%, white 100%);
+            background-size: 200% 100%;
+            background-position: 0% 0;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pourRed 2.5s ease 0s 1 forwards, pourLoop 2.5s ease 10s infinite;
+            padding: 0 4px;
+            display: inline-block;
+        }
+        @keyframes pourRed { 0% { background-position: 100% 0; } 100% { background-position: 0% 0; } }
+        @keyframes pourLoop { 0% { background-position: 0% 0; } 20% { background-position: 100% 0; } 40% { background-position: 0% 0; } 100% { background-position: 0% 0; } }
+
+        .section-title { font-size: 1.2rem; font-weight: 800; color: #dc2626; text-transform: lowercase; font-style: italic; margin-bottom: 20px; }
+
+        .rizz-login-btn { 
+            background: #dc2626; color: white; font-weight: 900; text-transform: lowercase; 
+            border-radius: 8px; padding: 10px 24px; transition: 0.3s; 
+            animation: loginPulse 2s infinite; font-size: 12px; 
+        }
+        @keyframes loginPulse { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); } 70% { box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
+
+        .network-chip {
+            flex: 0 0 auto; width: 110px; height: 55px; background: #050505; 
+            border: 1.5px solid #dc2626; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center; transition: 0.3s ease; cursor: pointer;
+        }
+        .network-chip:hover, .network-chip.active { background: rgba(220, 38, 38, 0.15); border-color: #ff0000; transform: translateY(-3px); }
+        .network-chip img { max-width: 65%; max-height: 25px; object-fit: contain; }
+
+        .genre-pill { white-space: nowrap; transition: 0.3s; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: lowercase; color: #71717a; padding: 8px 16px; background: #0a0a0a; border: 1px solid #1f1f1f; }
+        .genre-pill.active { color: white; background: #dc2626; border-color: #dc2626; }
+
+        .movie-card { transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); background: #0a0a0a; position: relative; border-radius: 20px; overflow: hidden; }
+        .movie-card:hover { transform: scale(1.03) translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.9); border: 1px solid #dc2626; }
+        .fav-btn { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.7); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; z-index: 20; color: white; font-size: 14px; border: 1px solid transparent; transition: 0.3s; }
+        .is-fav { color: #ff0000 !important; text-shadow: 0 0 10px red; }
+
+        .rizz-footer { border-top: 1px solid rgba(255,255,255,0.03); padding: 60px 20px; text-align: center; }
+        .anton-name { transition: all 0.4s ease; color: #ff0000; text-decoration: none; font-weight: 900; }
         .anton-name:hover { color: #ff5555; text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000; }
 
-        .rizz-footer {
-            border-top: 2px solid #1a1a1a;
-            background: linear-gradient(to top, #0a0000, #000);
-            padding: 50px 20px;
-            text-align: center;
-        }
-
-        .tv-select {
-            background: #111;
-            color: #ff0000; 
-            border: 1px solid #dc2626;
-            padding: 5px 10px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 900;
-            outline: none;
-        }
-    </style>
-</head>
-<body>
-
-    <nav class="p-6 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-zinc-800 bg-black/50 sticky top-0 z-50 backdrop-blur-md">
-        <h1 class="text-4xl font-black italic tracking-tighter text-red-600 cursor-pointer" onclick="location.reload()">RIZZKING <span class="text-white">MOVIES</span></h1>
-        
-        <div class="flex gap-4">
-            <button id="movie-tab" onclick="setTab('movie')" class="font-bold text-red-600 transition uppercase text-sm px-4 py-2 rounded-lg">Movies</button>
-            <button id="tv-tab" onclick="setTab('tv')" class="font-bold hover:text-red-600 transition uppercase text-sm px-4 py-2 rounded-lg">TV Shows</button>
-        </div>
-
-        <div class="relative w-full md:w-96">
-            <input type="text" id="search-input" placeholder="Search absolute cinema..." 
-                   class="w-full bg-zinc-900 border border-zinc-700 px-5 py-3 rounded-xl focus:outline-none focus:border-red-600 transition">
-        </div>
-    </nav>
-
-    <main class="p-8 max-w-7xl mx-auto">
-        <h2 id="grid-title" class="text-xl font-bold mb-6 text-zinc-500 uppercase tracking-widest italic border-l-4 border-red-600 pl-4">Trending Movies</h2>
-        <div id="movie-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-            </div>
-    </main>
-
-    <div id="player-overlay">
-        <div class="flex flex-col h-full">
-            <div class="p-4 bg-zinc-900 flex justify-between items-center border-b border-zinc-800 flex-wrap gap-4">
-                
-                <div class="flex items-center gap-6">
-                    <h3 id="playing-title" class="text-xl font-black text-red-600 uppercase italic truncate max-w-[200px]">Loading...</h3>
-                    
-                    <div id="tv-ui" style="display: none;" class="flex gap-2">
-                        <select id="s-select" onchange="updateS()" class="tv-select"></select>
-                        <select id="e-select" onchange="updateE()" class="tv-select"></select>
-                    </div>
-                </div>
-                
-                <div class="flex items-center gap-4">
-                    <div class="flex gap-2">
-                        <button id="s1" onclick="serv(1)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black active-btn transition">SERVER 1</button>
-                        <button id="s2" onclick="serv(2)" class="bg-zinc-800 px-4 py-1.5 rounded text-[10px] font-black transition">SERVER 2</button>
-                    </div>
-                    <button onclick="closeP()" class="bg-red-600 px-6 py-1.5 rounded-lg font-black text-sm shadow-lg hover:bg-red-700 transition">CLOSE ×</button>
-                </div>
-            </div>
-            
-            <div class="flex-grow bg-black">
-                <iframe id="main-frame" src="" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
-            </div>
-        </div>
-    </div>
-
-    <footer class="rizz-footer">
-        <p class="font-black italic text-xl uppercase tracking-widest">
-            Ur welcome - <span class="anton-name">Anton</span>
-        </p>
-        <p style="text-align: center; color: #52525b; font-size: 10px; text-transform: uppercase; margin-top: 20px; opacity: 0.5; font-family: sans-serif; tracking-tighter;">
-            HOT HUZZ HML
-        </p>
-    </footer>
-
-    <script>
-        const KEY = 'c151dd5e3f53032433742137e48cd90f'; 
-        const grid = document.getElementById('movie-grid');
-        const qInput = document.getElementById('search-input');
-        
-        let mode = 'movie'; 
-        let curID = '';
-        let curS = 1;
-        let curE = 1;
-
-        function setTab(t) {
-            mode = t;
-            qInput.value = "";
-            document.getElementById('movie-tab').style.color = (t === 'movie') ? '#dc2626' : 'white';
-            document.getElementById('tv-tab').style.color = (t === 'tv') ? '#dc2626' : 'white';
-            fetchData();
-        }
-
-        async function fetchData(q = "") {
-            const path = q ? `search/${mode}` : `trending/${mode}/day`;
-            const param = q ? `&query=${encodeURIComponent(q)}` : '';
-            const url = `https://api.themoviedb.org/3/${path}?api_key=${KEY}${param}`;
-            
-            const res = await fetch(url);
-            const data = await res.json();
-            
-            document.getElementById('grid-title').innerText = q ? `RESULTS: ${q.toUpperCase()}` : `TRENDING ${mode.toUpperCase()}S`;
-            
-            grid.innerHTML = data.results.map(m => `
-                <div class="movie-card rounded-2xl overflow-hidden shadow-xl" onclick="openP('${m.id}', '${(m.title || m.name).replace(/'/g, "")}')">
-                    <img src="${m.poster_path ? 'https://image.tmdb.org/t/p/w500' + m.poster_path : 'https://via.placeholder.com/500x750?text=No+Poster'}" class="w-full">
-                    <div class="p-4 bg-zinc-950/50">
-                        <h3 class="font-black text-[10px] uppercase truncate">${m.title || m.name}</h3>
-                        <div class="flex justify-between items-center mt-1">
-                            <span class="text-[9px] text-zinc-500 font-bold">${(m.release_date || m.first_air_date)?.split('-')[0] || 'N/A'}</span>
-                            <span class="text-[9px] text-red-500 font-black">★ ${m.vote_average.toFixed(1)}</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function openP(id, title) {
-            curID = id;
-            curS = 1;
-            curE = 1;
-            document.getElementById('playing-title').innerText = title;
-            
-            const tvUI = document.getElementById('tv-ui');
-            if (mode === 'tv') {
-                tvUI.style.display = 'flex';
-                await loadTVData(id);
-            } else {
-                tvUI.style.display = 'none';
-            }
-
-            serv(1);
-            document.getElementById('player-overlay').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-
-        async function loadTVData(id) {
-            const res = await fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${KEY}`);
-            const data = await res.json();
-            
-            const sBox = document.getElementById('s-select');
-            sBox.innerHTML = data.seasons
-                .filter(s => s.season_number > 0)
-                .map(s => `<option value="${s.season_number}">SEASON ${s.season_number}</option>`).join('');
-            
-            await loadEpData();
-        }
-
-        async function loadEpData() {
-            const sNum = document.getElementById('s-select').value;
-            const res = await fetch(`https://api.themoviedb.org/3/tv/${curID}/season/${sNum}?api_key=${KEY}`);
-            const data = await res.json();
-            
-            const eBox = document.getElementById('e-select');
-            eBox.innerHTML = data.episodes.map(e => `<option value="${e.episode_number}">EP ${e.episode_number}</option>`).join('');
-        }
-
-        function updateS() {
-            curS = document.getElementById('s-select').value;
-            curE = 1;
-            loadEpData().then(() => serv(1));
-        }
-
-        function updateE() {
-            curE = document.getElementById('e-select').value;
-            serv(1);
-        }
-
-        function serv(n) {
-            const frame = document.getElementById('main-frame');
-            document.getElementById('s1').classList.toggle('active-btn', n === 1);
-            document.getElementById('s2').classList.toggle('active-btn', n === 2);
-            
-            if (n === 1) {
-                frame.src = mode === 'movie' 
-                    ? `https://vidking.net/embed/movie/${curID}` 
-                    : `https://vidking.net/embed/tv/${curID}/${curS}/${curE}`;
-            } else {
-                frame.src = mode === 'movie' 
-                    ? `https://vidsrc.me/embed/movie?tmdb=${curID}` 
-                    : `https://vidsrc.me/embed/tv?tmdb=${curID}&sea=${curS}&epi=${curE}`;
-            }
-        }
-
-        function closeP() {
-            document.getElementById('player-overlay').style.display = 'none';
-            document.getElementById('main-frame').src = '';
-            document.body.style.overflow = 'auto';
-        }
-
-        qInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') fetchData(e.target.value);
-        });
-
-        fetchData();
-    </script>
-</body>
-</html>
+        .tab-container { position: relative; background: #0a0a0a; padding: 4px; border-radius: 14px; display: flex; border: 1px solid rgba
