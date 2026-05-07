@@ -70,4 +70,389 @@
         .anton-name { transition: all 0.4s ease; color: #ff0000; text-decoration: none; font-weight: 900; }
         .anton-name:hover { color: #ff5555; text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000; }
 
-        .tab-container { position: relative; background: #0a0a0a; padding: 4px; border-radius: 14px; display: flex; border: 1px solid rgba
+        .tab-container { position: relative; background: #0a0a0a; padding: 4px; border-radius: 14px; display: flex; border: 1px solid rgba(255,255,255,0.08); width: 180px; }
+        .tab-slider { position: absolute; top: 4px; left: 4px; height: calc(100% - 8px); width: calc(50% - 4px); background: #dc2626; border-radius: 10px; transition: 0.3s; }
+        .nav-tab { position: relative; z-index: 1; flex: 1; padding: 6px 0; text-align: center; font-weight: 800; text-transform: uppercase; font-size: 10px; cursor: pointer; color: #52525b; }
+        .nav-tab.active { color: white; }
+
+        .resume-badge { position: absolute; bottom: 8px; left: 8px; background: #dc2626; color: white; font-size: 8px; font-weight: 900; padding: 2px 6px; border-radius: 4px; text-transform: lowercase; z-index: 10; }
+        
+        #auth-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.97); backdrop-filter: blur(30px); z-index: 2000; justify-content: center; align-items: center; }
+        .auth-input { width: 100%; margin-bottom: 12px; background: #0d0d0d; color: white; border: 1px solid #1f1f1f; padding: 14px 18px; border-radius: 14px; outline: none; text-align: center; font-size: 13px; font-weight: 700; transition: 0.2s; font-family: inherit; }
+        .auth-input:focus { border-color: #dc2626; background: #111; }
+        .auth-btn { background: linear-gradient(135deg, #dc2626, #991b1b); width: 100%; padding: 15px; border-radius: 14px; font-weight: 900; text-transform: uppercase; font-size: 12px; color: white; cursor: pointer; letter-spacing: 0.05em; transition: 0.2s; box-shadow: 0 0 30px rgba(220,38,38,0.3); }
+
+        /* FULLSCREEN PLAYER */
+        #player-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
+
+        @keyframes surprisePulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6); } 50% { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); } }
+        @keyframes pabloSpin { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes plusOne { 0% { opacity:1; transform: translateY(0) scale(1); } 100% { opacity:0; transform: translateY(-60px) scale(1.4); } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="rizz-glow"></div>
+
+    <nav class="px-8 py-4 flex flex-col lg:flex-row justify-between items-center gap-6 sticky top-0 z-50">
+        <div class="flex items-center gap-10">
+            <div onclick="location.reload()" class="brand-logo cursor-pointer">rizzking movies</div>
+            <div class="tab-container">
+                <div id="tab-slider" class="tab-slider"></div>
+                <div id="movie-tab" onclick="setTab('movie')" class="nav-tab active">movies</div>
+                <div id="tv-tab" onclick="setTab('tv')" class="nav-tab inactive">tv shows</div>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 w-full lg:w-auto">
+            <input type="text" id="search-input" placeholder="search for any movie" class="w-full lg:w-80 bg-[#0a0a0a] border border-[#1f1f1f] px-6 py-2.5 rounded-full focus:outline-none focus:border-red-600 transition text-xs font-semibold placeholder-white/70">
+            <button id="surprise-btn" onclick="surprise()" class="px-5 py-2.5 rounded-full text-[10px] font-black uppercase whitespace-nowrap" style="background:#000; border: 1.5px solid #dc2626; animation: surprisePulse 1.8s ease-in-out infinite; color:white;">surprise</button>
+            <div id="user-display" class="hidden flex items-center gap-4">
+                <span id="active-username" class="text-[11px] font-black uppercase text-red-600 tracking-tighter"></span>
+                <button onclick="logout()" class="text-zinc-600 text-[10px] font-black uppercase hover:text-white transition">logout</button>
+            </div>
+            <button id="login-nav-btn" onclick="openAuth()" class="rizz-login-btn">login</button>
+        </div>
+    </nav>
+
+    <main class="p-8 max-w-[1600px] mx-auto space-y-8">
+        <section id="new-arrivals-section">
+            <h2 class="section-title">new arrivals</h2>
+            <div id="new-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6"></div>
+        </section>
+
+        <section id="user-vault" class="hidden">
+            <h2 class="section-title">my rizz vault</h2>
+            <div id="fav-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-5 mt-4"></div>
+            <h2 class="section-title mt-10">recently watched</h2>
+            <div id="watched-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mt-4 opacity-50"></div>
+        </section>
+
+        <section id="networks-section">
+            <h2 class="section-title">streaming services</h2>
+            <div class="flex gap-4 overflow-x-auto no-scrollbar py-2">
+                <div class="network-chip active" onclick="setNetwork('', this)"><span class="text-[9px] font-black uppercase">all</span></div>
+                <div class="network-chip" onclick="setNetwork('8', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" style="filter:brightness(0) invert(1);"></div>
+                <div class="network-chip" onclick="setNetwork('337', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg" style="filter:brightness(0) invert(1);"></div>
+                <div class="network-chip" onclick="setNetwork('1899', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/1/17/HBO_Max_Logo.svg" style="filter:brightness(0) invert(1);"></div>
+                <div class="network-chip" onclick="setNetwork('9', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg" style="filter:brightness(0) invert(1);"></div>
+                <div class="network-chip" onclick="setNetwork('350', this)"><img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg" style="filter:brightness(0) invert(1);"></div>
+            </div>
+        </section>
+
+        <section id="search-results-section" style="display:none">
+            <h2 class="section-title">search results</h2>
+            <div id="search-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6"></div>
+        </section>
+
+        <section id="trending-section">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-6">
+                <h2 id="grid-title" class="section-title mb-0">trending now</h2>
+                <div id="genre-container" class="flex gap-2 overflow-x-auto no-scrollbar pb-2"></div>
+            </div>
+            <div id="movie-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6"></div>
+        </section>
+    </main>
+
+    <footer class="rizz-footer">
+        <p class="font-black italic text-xl lowercase tracking-widest">ur welcome - <span class="anton-name">anton</span></p>
+        <div class="mt-10 flex flex-col items-center gap-3">
+            <div style="perspective: 800px;">
+                <div style="position:relative;display:inline-block;" onclick="pabloClick(event)">
+                    <img src="pablos.png" alt="Pablo" style="width:120px; height:120px; object-fit:contain; animation: pabloSpin 4s linear infinite; border-radius:50%; filter: drop-shadow(0 0 20px rgba(220,38,38,0.5)); cursor:pointer;">
+                </div>
+            </div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-zinc-600">powered by pablos</p>
+        </div>
+    </footer>
+
+    <div id="auth-overlay">
+        <div class="w-full max-w-sm text-center px-4">
+            <div class="mb-8">
+                <h1 class="text-5xl font-black italic tracking-tighter text-red-600 lowercase">rizzking</h1>
+                <p class="text-zinc-500 text-[10px] uppercase tracking-widest font-bold mt-1">absolute cinema awaits</p>
+            </div>
+            <h2 id="auth-title" class="text-lg font-black italic text-white mb-6 uppercase tracking-tight">login to start rizzing</h2>
+            <div id="auth-error" style="display:none" class="bg-red-600/20 border border-red-600/40 text-red-400 text-[10px] font-bold uppercase rounded-lg px-4 py-2 mb-4">incorrect login</div>
+            <div class="relative mb-3">
+                <input type="text" id="auth-user" placeholder="username" class="auth-input mb-0 pr-12">
+                <button onclick="genName()" title="generate brainrot name" class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-red-500 transition text-lg font-black">🎲</button>
+            </div>
+            <p id="name-suggestion" class="text-[9px] text-zinc-600 uppercase font-bold mb-3 h-4 transition-all"></p>
+            <input type="password" id="auth-pass" placeholder="password" class="auth-input">
+            <button onclick="handleAuth()" class="auth-btn">enter vault</button>
+            <button onclick="toggleAuthMode()" id="auth-toggle-btn" class="w-full mt-4 text-[10px] font-bold text-zinc-500 uppercase hover:text-white transition">register account</button>
+            <button onclick="closeAuth()" class="w-full mt-4 text-[9px] text-zinc-700 uppercase font-black hover:text-red-600 transition">cancel</button>
+        </div>
+    </div>
+
+    <div id="player-overlay">
+        <div class="flex flex-col h-full">
+            <div class="px-4 py-3 flex justify-between items-center border-b border-white/5 bg-[#080808]">
+                <h3 id="playing-title" class="text-sm font-black uppercase italic truncate max-w-[70%] text-white">loading...</h3>
+                <button onclick="closeP()" class="bg-red-600 hover:bg-red-700 text-white font-black text-[10px] px-4 py-1.5 rounded-full transition whitespace-nowrap">✕ close</button>
+            </div>
+
+            <div class="flex-grow bg-black">
+                <iframe id="main-frame" src="" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; fullscreen; encrypted-media"></iframe>
+            </div>
+
+            <div class="bg-[#080808] border-t border-white/5">
+                <div id="tv-ui" style="display:none" class="px-4 pt-3 flex gap-3 justify-center">
+                    <select id="s-select" onchange="updateS()" class="bg-black text-red-600 border border-red-600/30 px-3 py-1.5 rounded-lg text-xs font-bold outline-none flex-1"></select>
+                    <select id="e-select" onchange="updateE()" class="bg-black text-red-600 border border-red-600/30 px-3 py-1.5 rounded-lg text-xs font-bold outline-none flex-1"></select>
+                </div>
+                <div class="px-3 py-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
+                    <div id="server-panel" class="flex gap-2 w-max">
+                        <button id="sv1" onclick="serv(1)" class="px-4 py-1.5 rounded-full text-[9px] font-black transition whitespace-nowrap border border-white/10 bg-[#111]">VIDKING</button>
+                        <button id="sv2" onclick="serv(2)" class="px-4 py-1.5 rounded-full text-[9px] font-black transition whitespace-nowrap border border-white/10 bg-[#111]">SERVER 2</button>
+                        <button id="sv3" onclick="serv(3)" class="px-4 py-1.5 rounded-full text-[9px] font-black transition whitespace-nowrap border border-white/10 bg-[#111]">SERVER 3</button>
+                        <button id="sv4" onclick="serv(4)" class="px-4 py-1.5 rounded-full text-[9px] font-black transition whitespace-nowrap border border-white/10 bg-[#111]">SERVER 4</button>
+                        <button id="sv5" onclick="serv(5)" class="px-4 py-1.5 rounded-full text-[9px] font-black transition whitespace-nowrap border border-white/10 bg-[#111]">VIDLINK</button>
+                        <button id="sv6" onclick="serv(6)" class="px-4 py-1.5 rounded-full text-[9px] font-black transition whitespace-nowrap border border-white/10 bg-[#111]">VIDEASY</button>
+                    </div>
+                    <button onclick="toggleSimilar()" id="similar-btn" class="ml-auto flex-shrink-0 px-4 py-1.5 rounded-full text-[9px] font-black whitespace-nowrap border border-red-600/50 bg-[#111] text-red-500">similar ↑</button>
+                </div>
+                <div id="similar-drawer" style="height:0; overflow-y:auto; transition: height 0.35s cubic-bezier(0.16, 1, 0.3, 1); background: #050505;">
+                    <div class="px-4 pb-4 pt-2">
+                        <div id="similar-grid" class="grid grid-cols-3 md:grid-cols-5 gap-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const KEY = 'c151dd5e3f53032433742137e48cd90f';
+        let mode = 'movie', curID = '', networkID = '', users = {}, currentUser = null, isRegistering = false, curServ = 1, similarOpen = false;
+
+        const savedSession = sessionStorage.getItem('rizzSession');
+        if (savedSession) {
+            const d = JSON.parse(savedSession);
+            currentUser = d.username;
+            users[currentUser] = { favorites: d.favorites || [], watched: d.watched || [] };
+            setTimeout(updateUserUI, 100);
+        }
+
+        async function handleAuth() {
+            const u = document.getElementById('auth-user').value.toLowerCase();
+            const p = document.getElementById('auth-pass').value;
+            const a = isRegistering ? 'register' : 'login';
+            const f = new FormData(); f.append('action', a); f.append('username', u); f.append('password', p);
+            try {
+                const res = await fetch('auth.php', { method: 'POST', body: f });
+                const data = await res.json();
+                if(data.success) {
+                    document.getElementById('auth-error').style.display = 'none';
+                    if(isRegistering) { alert("registered!"); toggleAuthMode(); } 
+                    else { 
+                        currentUser = data.username; 
+                        users[currentUser] = { favorites: data.favorites || [], watched: data.watched || [] }; 
+                        sessionStorage.setItem('rizzSession', JSON.stringify(data)); 
+                        updateUserUI(); closeAuth(); 
+                    }
+                } else {
+                    const err = document.getElementById('auth-error');
+                    err.innerText = isRegistering ? data.error : "incorrect login";
+                    err.style.display = 'block';
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function syncToDB(type) {
+            if (!currentUser) return;
+            const f = new FormData(); f.append('username', currentUser); f.append('type', type); f.append('data', JSON.stringify(users[currentUser][type]));
+            await fetch('sync.php', { method: 'POST', body: f });
+        }
+
+        function updateUserUI() {
+            if(currentUser) {
+                document.getElementById('login-nav-btn').style.display = 'none';
+                document.getElementById('user-display').classList.remove('hidden');
+                document.getElementById('active-username').innerText = currentUser;
+                document.getElementById('user-vault').classList.remove('hidden');
+                renderUserVault();
+            }
+            fetchData(); fetchNewReleases();
+        }
+
+        function renderUserVault() {
+            if(!currentUser) return;
+            const d = users[currentUser];
+            document.getElementById('fav-grid').innerHTML = d.favorites.map(m => createCardHTML(m)).join('');
+            document.getElementById('watched-grid').innerHTML = d.watched.slice(-8).reverse().map(m => `
+                <div class="movie-card" onclick="openP('${m.id}', '${m.title}', '${m.poster}')">
+                    <div class="resume-badge">resume</div>
+                    <img src="https://image.tmdb.org/t/p/w200${m.poster}" class="w-full aspect-[2/3] object-cover">
+                </div>`).join('');
+        }
+
+        function toggleFav(e, id, title, poster) {
+            e.stopPropagation();
+            if(!currentUser) return openAuth();
+            const f = users[currentUser].favorites;
+            const i = f.findIndex(x => x.id == id);
+            if(i > -1) f.splice(i, 1);
+            else f.push({id, title, poster});
+            syncToDB('favorites'); updateUserUI();
+        }
+
+        function createCardHTML(m) {
+            const id = m.id, p = m.poster_path || m.poster, t = (m.title||m.name).replace(/'/g,"");
+            if(!p) return '';
+            const isFav = currentUser && users[currentUser].favorites.some(f => f.id == id);
+            return `<div class="movie-card" onclick="openP('${id}', '${t}', '${p}')">
+                <button onclick="toggleFav(event, '${id}', '${t}', '${p}')" class="fav-btn ${isFav?'is-fav':''}">❤</button>
+                <img src="https://image.tmdb.org/t/p/w500${p}" class="w-full aspect-[2/3] object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 hover:opacity-100 transition p-4 flex flex-col justify-end"><h3 class="font-black text-[9px] uppercase text-white">${t}</h3></div>
+            </div>`;
+        }
+
+        async function openP(id, title, poster) {
+            document.getElementById('tip-bubble').style.display = 'none';
+            document.getElementById('floating-tip').style.display = 'none';
+            similarOpen = false;
+            document.getElementById('similar-drawer').style.height = '0';
+            curID = id; document.getElementById('playing-title').innerText = title;
+            document.getElementById('player-overlay').style.display = 'flex';
+            if(currentUser) {
+                const h = users[currentUser].watched;
+                const i = h.findIndex(x => x.id == id);
+                if(i > -1) h.splice(i, 1);
+                h.push({id, title, poster});
+                syncToDB('watched'); renderUserVault();
+            }
+            if (mode === 'tv') { document.getElementById('tv-ui').style.display = 'flex'; await loadTVData(id); } else { document.getElementById('tv-ui').style.display = 'none'; }
+            serv(1); fetchSimilar(id);
+        }
+
+        async function fetchData(q = "") {
+            const sections = ['new-arrivals-section', 'networks-section', 'user-vault', 'trending-section', 'search-results-section'];
+            if (q) {
+                sections.forEach(s => document.getElementById(s).style.display = s === 'search-results-section' ? '' : 'none');
+            } else {
+                sections.forEach(s => {
+                    const el = document.getElementById(s);
+                    if (s === 'search-results-section') el.style.display = 'none';
+                    else if (s === 'user-vault') el.style.display = currentUser ? '' : 'none';
+                    else el.style.display = '';
+                });
+            }
+            let u = q ? `https://api.themoviedb.org/3/search/${mode}?api_key=${KEY}&query=${encodeURIComponent(q)}` :
+                      networkID ? `https://api.themoviedb.org/3/discover/${mode}?api_key=${KEY}&with_watch_providers=${networkID}&watch_region=US&sort_by=popularity.desc` :
+                      `https://api.themoviedb.org/3/trending/${mode}/day?api_key=${KEY}`;
+            const res = await fetch(u); const data = await res.json();
+            const grid = q ? document.getElementById('search-grid') : document.getElementById('movie-grid');
+            grid.innerHTML = data.results.map(m => createCardHTML(m)).join('');
+        }
+
+        async function fetchNewReleases() {
+            const res = await fetch(`https://api.themoviedb.org/3/${mode==='movie'?'movie/now_playing':'tv/on_the_air'}?api_key=${KEY}`);
+            const data = await res.json();
+            document.getElementById('new-grid').innerHTML = data.results.slice(0, 12).map(m => createCardHTML(m)).join('');
+        }
+
+        function serv(n) {
+            curServ = n;
+            const f = document.getElementById('main-frame');
+            document.querySelectorAll('#server-panel button').forEach(b => b.classList.remove('bg-red-600'));
+            document.getElementById('sv'+n).classList.add('bg-red-600');
+            const s = document.getElementById('s-select').value || 1, e = document.getElementById('e-select').value || 1;
+            const urls = [
+                mode === 'movie' ? `https://www.vidking.net/embed/movie/${curID}?color=dc2626&autoPlay=true` : `https://www.vidking.net/embed/tv/${curID}/${s}/${e}?color=dc2626&autoPlay=true&nextEpisode=true&episodeSelector=true`,
+                mode === 'movie' ? `https://vidsrc.me/embed/movie?tmdb=${curID}` : `https://vidsrc.me/embed/tv?tmdb=${curID}&sea=${s}&epi=${e}`,
+                mode === 'movie' ? `https://vidsrc.cc/v2/embed/movie/${curID}` : `https://vidsrc.cc/v2/embed/tv/${curID}/${s}/${e}`,
+                mode === 'movie' ? `https://multiembed.mov/?video_id=${curID}&tmdb=1` : `https://multiembed.mov/?video_id=${curID}&tmdb=1&s=${s}&e=${e}`,
+                mode === 'movie' ? `https://vidlink.pro/movie/${curID}` : `https://vidlink.pro/tv/${curID}/${s}/${e}`,
+                mode === 'movie' ? `https://player.videasy.net/movie/${curID}` : `https://player.videasy.net/tv/${curID}/${s}/${e}`
+            ];
+            f.src = urls[n-1];
+        }
+
+        async function loadTVData(id) {
+            const res = await fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${KEY}`);
+            const d = await res.json();
+            document.getElementById('s-select').innerHTML = d.seasons.filter(s => s.season_number > 0).map(s => `<option value="${s.season_number}">SEASON ${s.season_number}</option>`).join('');
+            await loadEpData();
+        }
+
+        async function loadEpData() {
+            const sNum = document.getElementById('s-select').value;
+            const res = await fetch(`https://api.themoviedb.org/3/tv/${curID}/season/${sNum}?api_key=${KEY}`);
+            const d = await res.json();
+            document.getElementById('e-select').innerHTML = d.episodes.map(e => `<option value="${e.episode_number}">EP ${e.episode_number}</option>`).join('');
+        }
+
+        async function fetchSimilar(id) {
+            const res = await fetch(`https://api.themoviedb.org/3/${mode}/${id}/recommendations?api_key=${KEY}`);
+            const d = await res.json();
+            document.getElementById('similar-grid').innerHTML = d.results.slice(0, 15).map(m => `
+                <div onclick="openP('${m.id}','${(m.title||m.name).replace(/'/g,'')}','${m.poster_path}')" style="cursor:pointer;">
+                    <img src="${m.poster_path?'https://image.tmdb.org/t/p/w200'+m.poster_path:'https://via.placeholder.com/100x150?text=N/A'}" style="width:100%; border-radius:10px; border:1px solid #222;">
+                    <p style="font-size:8px; font-weight:800; color:#aaa; margin-top:5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-transform:uppercase;">${m.title||m.name}</p>
+                </div>`).join('');
+        }
+
+        function toggleSimilar() {
+            similarOpen = !similarOpen;
+            document.getElementById('similar-drawer').style.height = similarOpen ? '380px' : '0';
+        }
+
+        function setTab(t) { mode = t; document.getElementById('tab-slider').style.transform = t==='movie'?'translateX(0%)':'translateX(100%)'; document.getElementById('movie-tab').className = 'nav-tab' + (t==='movie'?' active':''); document.getElementById('tv-tab').className = 'nav-tab' + (t==='tv'?' active':''); fetchData(); fetchNewReleases(); }
+        function setNetwork(id, el) { networkID = id; document.querySelectorAll('.network-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); fetchData(); }
+        function renderGenres() {
+            const list = mode === 'movie' ? [{id:28,name:"action"},{id:35,name:"comedy"},{id:27,name:"horror"},{id:878,name:"sci-fi"}] : [{id:18,name:"drama"},{id:9648,name:"mystery"},{id:10765,name:"sci-fi"},{id:80,name:"crime"}];
+            document.getElementById('genre-container').innerHTML = `<button onclick="fetchData()" class="genre-pill active">all</button>` + list.map(x => `<button onclick="fetchByGenre(${x.id},this)" class="genre-pill">${x.name}</button>`).join('');
+        }
+        async function fetchByGenre(id,el) { document.querySelectorAll('.genre-pill').forEach(b=>b.classList.remove('active')); el.classList.add('active'); const res = await fetch(`https://api.themoviedb.org/3/discover/${mode}?api_key=${KEY}&with_genres=${id}`); const d = await res.json(); document.getElementById('movie-grid').innerHTML = d.results.map(m=>createCardHTML(m)).join(''); }
+        
+        function openAuth() { document.getElementById('auth-overlay').style.display = 'flex'; }
+        function closeAuth() { document.getElementById('auth-overlay').style.display = 'none'; }
+        
+        /* SUPERCHARGED BRAINROT GENERATOR */
+        function genName() { 
+            const adjs = ['sigma','rizz','based','sussy','bussin','glazed','grimace','skibidi','goated','ohio','delulu','mewing','gyatt','fanum','unc','lowkey','npc','chad','cooked','pookie','aura','feral','mid','peak','mogger','edging','looksmaxxing','skibidi']; 
+            const nouns = ['fanum','skibidi','rizzer','sigma','gyatter','mewer','glazer','baller','hawk','tuah','grimace','shlawg','looksmaxxer','aura','cooked','pookie','twin','shawty','demon','goat','mogger','yapper','edger','looksmaxx','aura'];
+            const n = adjs[Math.floor(Math.random()*adjs.length)] + nouns[Math.floor(Math.random()*nouns.length)] + Math.floor(Math.random()*999); 
+            document.getElementById('auth-user').value = n; 
+            document.getElementById('name-suggestion').innerText = '🔥 ' + n + ' just dropped'; 
+        }
+
+        function logout() { sessionStorage.removeItem('rizzSession'); location.reload(); }
+        function closeP() { document.getElementById('player-overlay').style.display = 'none'; document.getElementById('main-frame').src = ''; document.getElementById('floating-tip').style.display = 'flex'; }
+        
+        function pabloClick(e) {
+            const el = document.createElement('div');
+            el.innerText = '+1';
+            el.style.cssText = `position:fixed;left:${e.clientX-10}px;top:${e.clientY-10}px;color:#dc2626;font-size:1.4rem;font-weight:900;z-index:9999;animation:plusOne 0.8s ease forwards;`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
+
+        async function surprise() {
+            const res = await fetch(`https://api.themoviedb.org/3/discover/${mode}?api_key=${KEY}&page=${Math.floor(Math.random()*10)+1}`);
+            const data = await res.json();
+            const itm = data.results[Math.floor(Math.random()*data.results.length)];
+            openP(itm.id, itm.title || itm.name, itm.poster_path);
+        }
+
+        document.getElementById('search-input').onkeypress = (e) => { if(e.key === 'Enter') fetchData(e.target.value); };
+        renderGenres(); fetchData(); fetchNewReleases();
+    </script>
+
+    <div id="floating-tip" style="position:fixed; bottom:28px; right:28px; z-index:2999; display:flex; flex-direction:column; align-items:flex-end; gap:12px;">
+        <div id="tip-bubble" style="display:none; background:#111; border:1.5px solid #dc2626; border-radius:16px; padding:16px 18px; max-width:280px; box-shadow:0 0 30px rgba(220,38,38,0.25); animation: fadeUp 0.2s ease;">
+            <p style="font-size:11px; font-weight:600; color:#d4d4d4; line-height:1.6; margin:0 0 10px 0;">
+                For the best experience on third-party servers, use 
+                <a href="https://brave.com/download" target="_blank" style="color:#f97316; font-weight:900;">Brave Browser</a> 
+                or install 
+                <a href="https://ublockorigin.com" target="_blank" style="color:#ef4444; font-weight:900;">uBlock Origin</a>.
+            </p>
+            <p style="font-size:9px; font-weight:900; text-transform:uppercase; color:#52525b; margin:0;">— anton</p>
+        </div>
+        <button onclick="var b=document.getElementById('tip-bubble'); b.style.display=b.style.display==='none'?'block':'none';"
+            style="width:52px; height:52px; border-radius:50%; background:#111; border:1.5px solid #dc2626; font-size:22px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow: 0 0 15px rgba(220,38,38,0.3);">💡</button>
+    </div>
+</body>
+</html>
